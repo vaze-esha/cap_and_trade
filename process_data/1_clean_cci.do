@@ -54,7 +54,7 @@
 	di "`input_data'"
 
 	* output dir
-	local output_data "`wokringdir'/1_input"
+	local output_data "`workingdir'/1_input"
 	di "`output_data'"
 /*============================================================================*/	
 
@@ -169,7 +169,7 @@
 	foreach v in 2 3 4 {
     preserve
     keep if CESVersion == `v'
-    save "`output_data'/cci_CESVersion`v'", replace
+    save "`output_data'/cci_ces_versions/cci_CESVersion`v'", replace
     restore
 }
 
