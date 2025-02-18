@@ -12,7 +12,24 @@
 		1. cci_2024ar_detaileddata.xlsx
 	
 	OUTPUTS:
-		1. cci_2024.dta
+	
+	Datasets split by CESVersion (2, 3, 4):
+
+		cci_CESVersion2.dta
+		cci_CESVersion3.dta
+		cci_CESVersion4.dta
+
+	Datasets split by Year (2015 to 2023):
+
+		cci_2015.dta
+		cci_2016.dta
+		cci_2017.dta
+		cci_2018.dta
+		cci_2019.dta
+		cci_2020.dta
+		cci_2021.dta
+		cci_2022.dta
+		cci_2023.dta
 		
 		
 ==============================================================================*/
