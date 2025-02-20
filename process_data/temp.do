@@ -79,10 +79,10 @@
 */
 	
 ********************************************************************************
-
 /*==============================================================================
-								YEARLY MERGES 
-==============================================================================*/	
+						
+==============================================================================*/
+
 
 			*******************************************************
 			*******************************************************
@@ -94,9 +94,6 @@
 							 1. Load and Inspect
 ==============================================================================*/	
 
-			
-			
-
 	/*
 	
 		Take each yearly dataset and merge it with CES Score data 
@@ -104,7 +101,7 @@
 	
 	*/
 	
-	use "`output_data'/cci_yearly/cci_2016.dta"
+	use "`output_data'/cci_yearly/cci_2017.dta"
 	destring CensusTract, replace
 	// 322 missing 
 	// these are projects that were implemented at the county/ad/sd levels
@@ -464,7 +461,7 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 							     2. Cleaning 
 ==============================================================================*/	
 	// dropping empties
-	drop ApplicantsAssisted 
+	drop ApplicantsAssisted BufferAmount BufferCount
 	drop dup 
 	drop d
 	
@@ -495,7 +492,7 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	save `merged_ces2'
 
 	restore
-	xxxxx FIX HERE 
+
 	// merge ces3 
 	preserve
 
@@ -517,6 +514,7 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 */
 
 	// save temp 
+	drop if _merge==2
 	tempfile merged_ces3
 	save `merged_ces3'
 
@@ -533,7 +531,7 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	
 	// keep unfunded tracts in dataset, these are true zeroes 
 	count if TotalProgramGGRFFunding==.
-	// 1,294
+	// 1,138
 
 	// do not keep unscored tracts, analysis hedges on RD threshold cutoff 
 	drop if CES20Score==""
@@ -544,17 +542,17 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	centile CES20Score, centile(75)
 	local p75 = r(c_1)
 	display "`p75'"
-	// 32.66230828250767
+	// 40.6670816696226
 	
 	
 	// CALCULATING THE INSTRUMENT 
 	// RD c=3.86 (KI chosen by previous paper)
 	
 	// each county: count funded and unfunded tracts 
-	gen Treat_Tract = (CES20Score > 32.66230828250767 & CES20Score <= 36.522308282507666)
+	gen Treat_Tract = (CES20Score > 40.6670816696226 & CES20Score <= 44.527081669622596)
 	//846 treatment tracts 
 	
-	gen Control_Tract = inrange(CES20Score, 28.802308282507667, 32.66230828250767)
+	gen Control_Tract = inrange(CES20Score, 36.8070816696226, 40.6670816696226)
 	//1021 control tracts 
 
 	egen TOT_Treatment = total(Treat_Tract), by(County)
@@ -562,10 +560,11 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	
 	gen instrument = TOT_Treatment / (TOT_Treatment + TOT_Control)
 	drop if instrument==.
+	//(670 observations deleted)
 	
 	/*
 	
-	647 obs where instrument is missing -- these are whole counties where 
+	670 obs where instrument is missing -- these are whole counties where 
 	   the tracts never fall in the RD score range we need 
 	   
 	   These counties are excluded from the sample because they are off the 
@@ -573,8 +572,8 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	   
 	*/
 	
-	egen TOT_funding_treated = sum(TotalProgramGGRFFunding) if CES20Score > 32.66230828250767 & CES20Score <= 36.522308282507666, by(County)
-	egen TOT_funding_control = sum(TotalProgramGGRFFunding) if inrange(CES20Score, 28.802308282507667, 32.66230828250767), by(County)
+	egen TOT_funding_treated = sum(TotalProgramGGRFFunding) if CES20Score > 40.6670816696226 & CES20Score <= 44.527081669622596, by(County)
+	egen TOT_funding_control = sum(TotalProgramGGRFFunding) if inrange(CES20Score, 36.8070816696226, 40.6670816696226), by(County)
 	egen TOT_funding = sum(TotalProgramGGRFFunding), by(County) // total funds rec'd by each county
 	
 	// FIRST STAGE:
@@ -583,19 +582,28 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	/*
 	
 	
-      Source |       SS           df       MS      Number of obs   =    16,259
--------------+----------------------------------   F(1, 16257)     =     36.86
-       Model |  8.9343e+15         1  8.9343e+15   Prob > F        =    0.0000
-    Residual |  3.9400e+18    16,257  2.4236e+14   R-squared       =    0.0023
--------------+----------------------------------   Adj R-squared   =    0.0022
-       Total |  3.9490e+18    16,258  2.4289e+14   Root MSE        =    1.6e+07
+      Source |       SS           df       MS      Number of obs   =    11,605
+-------------+----------------------------------   F(1, 11603)     =   2139.36
+       Model |  4.3386e+17         1  4.3386e+17   Prob > F        =    0.0000
+    Residual |  2.3531e+18    11,603  2.0280e+14   R-squared       =    0.1557
+-------------+----------------------------------   Adj R-squared   =    0.1556
+       Total |  2.7869e+18    11,604  2.4017e+14   Root MSE        =    1.4e+07
 
 ------------------------------------------------------------------------------
  TOT_funding | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-  instrument |    5044158   830784.6     6.07   0.000      3415729     6672587
-       _cons |   1.51e+07   378016.1    39.91   0.000     1.43e+07    1.58e+07
+  instrument |   4.60e+07   994264.5    46.25   0.000     4.40e+07    4.79e+07
+       _cons |   -3460083   448578.4    -7.71   0.000     -4339373    -2580794
 ------------------------------------------------------------------------------
+
 	
 	*/
+	
+	tostring(CensusTract), replace
+	
+	drop _merge
+	
+	save "`output_data'/cci_ces_merged/2016.dta"
+	
+
 	
