@@ -103,6 +103,7 @@
 	
 	use "`output_data'/cci_yearly/cci_2017.dta"
 	destring CensusTract, replace
+	x
 	// 322 missing 
 	// these are projects that were implemented at the county/ad/sd levels
 	
