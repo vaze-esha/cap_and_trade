@@ -97,7 +97,7 @@
 
 	*/
 	
-	keep ProjectIDNumber ReportingCycleName AgencyName ProgramName ProgramDescription SubProgramName RecordType ProjectName ProjectType ProjectDescription CensusTract Address LatLong SenateDistrict AssemblyDistrict County TotalProjectCost TotalProgramGGRFFunding ProjectLifeYears DateOperational ProjectCompletionDate FundingRecipient BufferAmount BufferCount CESVersion CESVersion CESVersionCalc ApplicantsAssisted IntermediaryAdminExpensesCalc PRIMARY_FUNDING_RECIPIENT_TYPE
+	keep ProjectIDNumber ReportingCycleName AgencyName ProgramName ProgramDescription SubProgramName ProjectDescription CensusTract SenateDistrict AssemblyDistrict County TotalProjectCost TotalProgramGGRFFunding ProjectLifeYears DateOperational ProjectCompletionDate FundingRecipient BufferAmount BufferCount CESVersion CESVersion CESVersionCalc ApplicantsAssisted IntermediaryAdminExpensesCalc 
 	
 	
 	// 1. year 
