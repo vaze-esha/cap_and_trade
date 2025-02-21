@@ -10,11 +10,15 @@
 		
 	INPUTS:
 		1. cci_2024ar_detaileddata.xlsx
+		2. cci_CESVersion2.xlsx
+		3. cci_CESVersion3.xlsx
+		4. cci_CESVersion4.xlsx
 	
 	OUTPUTS:
 	
 	Datasets split by CESVersion (2, 3, 4):
-
+	(multiple years per ces version)
+	
 		cci_CESVersion2.dta
 		cci_CESVersion3.dta
 		cci_CESVersion4.dta
@@ -199,7 +203,7 @@
     restore
 }
 
-	
+
 ********************************************************************************
 
 	/*
@@ -207,8 +211,27 @@
 	potentially:
 		make a dataset with the cci reported outcomes and if they have any 
 		impact
+	*/
 	
+/*==============================================================================
+							importing ces data 
+==============================================================================*/	
+	// import ces2
+	import excel "`input_data'/ces2results.xlsx", sheet("CES2.0FinalResults") firstrow clear
+	keep CensusTract TotalPopulation CaliforniaCounty CES20Score CES20PercentileRange
+	save "`output_data'/ces2results.dta", replace
 
+	// import ces3
+	import excel "`input_data'/ces3results.xlsx", sheet("CES3.0FinalResults") firstrow clear
+	keep CensusTract TotalPopulation CaliforniaCounty CES30Score CES30Percentile CES30PercentileRange
+	save "`output_data'/ces3results.dta", replace
+
+	// import ces4
+	import excel "`input_data'/ces4results.xlsx", sheet("CES4.0FinalResults") firstrow clear
+	keep CensusTract TotalPopulation CaliforniaCounty CES40Score CES40Percentile CES40PercentileRange
+	save "`output_data'/ces4results.dta", replace
+
+	
 	
 	
 	
