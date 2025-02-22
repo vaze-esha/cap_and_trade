@@ -32,7 +32,6 @@
 	*/
 	
 	use "`output_data'/cci_yearly/cci_2015.dta"
-	destring CensusTract, replace
 	// 381 missing 
 	// these are projects that were implemented at the county/ad/sd levels
 	
@@ -381,6 +380,7 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	// keep unfunded tracts in dataset, these are true zeroes 
 	count if TotalProgramGGRFFunding==.
 	// 1,294
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
 	/* 
 		
 		to account for these, we use the CaliforniaCounty Measure instead of the 
@@ -533,26 +533,26 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	/*
 	
 	
-      Source |       SS           df       MS      Number of obs   =    16,259
--------------+----------------------------------   F(1, 16257)     =     36.86
-       Model |  8.9343e+15         1  8.9343e+15   Prob > F        =    0.0000
-    Residual |  3.9400e+18    16,257  2.4236e+14   R-squared       =    0.0023
--------------+----------------------------------   Adj R-squared   =    0.0022
-       Total |  3.9490e+18    16,258  2.4289e+14   Root MSE        =    1.6e+07
+      Source |       SS           df       MS      Number of obs   =        36
+-------------+----------------------------------   F(1, 34)        =      0.38
+       Model |  2.6895e+13         1  2.6895e+13   Prob > F        =    0.5439
+    Residual |  2.4324e+15        34  7.1540e+13   R-squared       =    0.0109
+-------------+----------------------------------   Adj R-squared   =   -0.0182
+       Total |  2.4593e+15        35  7.0265e+13   Root MSE        =    8.5e+06
 
 ------------------------------------------------------------------------------
  TOT_funding | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
 -------------+----------------------------------------------------------------
-  instrument |    5044158   830784.6     6.07   0.000      3415729     6672587
-       _cons |   1.51e+07   378016.1    39.91   0.000     1.43e+07    1.58e+07
+  instrument |    3080721    5024497     0.61   0.544     -7130285    1.33e+07
+       _cons |    2986451    2618321     1.14   0.262     -2334617     8307519
 ------------------------------------------------------------------------------
+
 	
 	*/
 	
+
 	
-	drop _merge
-	
-	save "`output_data'/cci_ces_merged/2015.dta"
+	save "`output_data'/cci_ces_merged/2015.dta", replace
 	
 ********************************************************************************
 

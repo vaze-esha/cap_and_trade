@@ -21,7 +21,7 @@
 						setting user paths and dirs
 ==============================================================================*/		
 	* code 
-	local code "/Users/eshavaze/cap_and_trade"
+	local code "/Users/eshavaze/cap_and_trade/process_data/2_create_yearly_datasets"
 	
 	* workingdir
 	local workingdir "/Users/eshavaze/Dropbox/cal_cap_and_trade"
@@ -41,3 +41,5 @@
 	include "`code'/2_merge_2015.do"
 	//b. 2016
 	include "`code'/2_merge_2016.do"
+	// c. 2017
+	//include  "`code'/2_merge_2017.do"

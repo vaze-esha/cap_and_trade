@@ -17,19 +17,6 @@
 		
 ==============================================================================*/
 /*============================================================================*/	
-* code 
-	local code "/Users/eshavaze/cap_and_trade"
-	
-	* workingdir
-	local workingdir "/Users/eshavaze/Dropbox/cal_cap_and_trade"
-	
-	* input dir
-	local input_data "`workingdir'/0_raw_input"
-	di "`input_data'"
-
-	* output dir
-	local output_data "`workingdir'/1_input"
-	di "`output_data'"
 
 /*==============================================================================
 							 1. Load and Inspect
@@ -43,8 +30,7 @@
 	*/
 	
 	use "`output_data'/cci_yearly/cci_2016.dta"
-	destring CensusTract, replace
-	// 322 missing 
+	// 322 census tracts missing 
 	// these are projects that were implemented at the county/ad/sd levels
 	
 	duplicates tag CensusTract, gen(dup)
@@ -496,17 +482,15 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	// keep unfunded tracts in dataset, these are true zeroes 
 	count if TotalProgramGGRFFunding==.
 	// 1,138
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
 
 	// do not keep unscored tracts, analysis hedges on RD threshold cutoff 
 	drop if CES20Score==""
 	drop if CES20Score=="NA"
 	destring CES20Score, replace 
 	
-	// calculate the top 25 pcentile score 
-	centile CES20Score, centile(75)
-	local p75 = r(c_1)
-	display "`p75'"
-	// 40.6670816696226
+	//top 25 percentile score is 32.66230828250767 for ces2.0
+
 	
 	// CALCULATING THE INSTRUMENT 
 	// RD c=3.86 (KI chosen by previous paper)
@@ -598,6 +582,7 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
 	/*
 
      
+
       Source |       SS           df       MS      Number of obs   =        37
 -------------+----------------------------------   F(1, 35)        =      1.26
        Model |  6.2927e+13         1  6.2927e+13   Prob > F        =    0.2687
@@ -612,8 +597,7 @@ Alpine, Fresno, Inyo, Madera, Mono, T.. |          1        0.01        5.59
        _cons |    1855707    2213876     0.84   0.408     -2638700     6350114
 ------------------------------------------------------------------------------
 
-
 	
 	*/
 	
-	save "`output_data'/cci_ces_merged/2016.dta"
+	save "`output_data'/cci_ces_merged/2016.dta", replace 

@@ -82,7 +82,7 @@
 /*==============================================================================
 							     import data
 ==============================================================================*/	
-	
+/*
 	import excel "`input_data'/cci_2024ar_detaileddata.xlsx", sheet("Project List") firstrow
 	
 	/* 
@@ -202,7 +202,7 @@
     save "`output_data'/cci_yearly/cci_`year'", replace
     restore
 }
-
+*/
 
 ********************************************************************************
 
@@ -219,16 +219,19 @@
 	// import ces2
 	import excel "`input_data'/ces2results.xlsx", sheet("CES2.0FinalResults") firstrow clear
 	keep CensusTract TotalPopulation CaliforniaCounty CES20Score CES20PercentileRange
+	tostring(CensusTract), replace
 	save "`output_data'/ces2results.dta", replace
 
 	// import ces3
 	import excel "`input_data'/ces3results.xlsx", sheet("CES3.0FinalResults") firstrow clear
 	keep CensusTract TotalPopulation CaliforniaCounty CES30Score CES30Percentile CES30PercentileRange
+	tostring(CensusTract), replace
 	save "`output_data'/ces3results.dta", replace
 
 	// import ces4
 	import excel "`input_data'/ces4results.xlsx", sheet("CES4.0FinalResults") firstrow clear
 	keep CensusTract TotalPopulation CaliforniaCounty CES40Score CES40Percentile CES40PercentileRange
+	tostring(CensusTract), replace
 	save "`output_data'/ces4results.dta", replace
 
 	
