@@ -1,5 +1,5 @@
 /*==============================================================================
-							2_merge_2016.do
+							2_merge_2018.do
 ================================================================================
 
 	PURPOSE:
@@ -9,27 +9,14 @@
 	INPUTS:
 		1. cci_CESVersion2.dta
 		2. cci_CESVersion3.dta
-		3. cci_2016.dta
+		3. cci_2017.dta
 	
 	OUTPUTS:
-		1. 2016.dta 
+		1. 2017.dta 
 		
 		
 ==============================================================================*/
 /*============================================================================*/	
-* code 
-	local code "/Users/eshavaze/cap_and_trade"
-	
-	* workingdir
-	local workingdir "/Users/eshavaze/Dropbox/cal_cap_and_trade"
-	
-	* input dir
-	local input_data "`workingdir'/0_raw_input"
-	di "`input_data'"
-
-	* output dir
-	local output_data "`workingdir'/1_input"
-	di "`output_data'"
 	
 /*==============================================================================
 							 1. Load and Inspect
@@ -374,7 +361,7 @@ Transit and Intercity Rail Capital Pr.. |         13        0.69       94.08
 	
 	
 	// CALCULATING THE INSTRUMENT 
-	// RD c=3.86 (KI chosen by previous paper)
+	// RD c=3.86 (KI chosen by previous paper) 
 	
 	preserve 
 	// census tracts are duplicated 
@@ -385,7 +372,7 @@ Transit and Intercity Rail Capital Pr.. |         13        0.69       94.08
 	
 	// construct the instrument 
 	// each county: count funded and unfunded tracts 
-	gen Treat_Tract = (CES20Score > 32.66230828250767 & CES20Score <= 36.522308282507666)
+	gen Treat_Tract = (CES20Score > 32.66230828250767 & CES20Score <= 36.522308282507666) // for ver 2 
 
 	gen Control_Tract = inrange(CES20Score, 28.802308282507667, 32.66230828250767)
 
@@ -438,3 +425,28 @@ Transit and Intercity Rail Capital Pr.. |         13        0.69       94.08
     -----------------------------------------
 
 	*/
+
+	duplicates tag County, gen(dup)
+	bysort County (dup): keep if _n == 1
+	
+	keep County instrument TOT_funding TOT_funding_treated TOT_funding_control TotalPopulation
+	drop if instrument==.
+	
+	reg TOT_funding instrument 
+	
+	/*
+	
+	Source |       SS           df       MS      Number of obs   =        35
+-------------+----------------------------------   F(1, 33)        =      1.13
+       Model |  7.5170e+13         1  7.5170e+13   Prob > F        =    0.2957
+    Residual |  2.1969e+15        33  6.6573e+13   R-squared       =    0.0331
+-------------+----------------------------------   Adj R-squared   =    0.0038
+       Total |  2.2721e+15        34  6.6826e+13   Root MSE        =    8.2e+06
+
+------------------------------------------------------------------------------
+ TOT_funding | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  instrument |    6501388    6118327     1.06   0.296     -5946442    1.89e+07
+       _cons |    2706347    2752060     0.98   0.333     -2892762     8305455
+------------------------------------------------------------------------------
+*/
