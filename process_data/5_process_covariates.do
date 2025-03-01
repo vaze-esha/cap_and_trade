@@ -108,6 +108,7 @@
 								POPULATION DATA
 ==============================================================================*/	
 
+	/*
 	import delimited using "`input_data'/population_estimates.csv", varnames(1) encoding(utf8) clear
 	
 	// unsuable rows 
@@ -134,6 +135,12 @@
 	drop date 
 	destring Year Population, replace
 	
+	/*
+	
+					SAVING YEAR WISE POPULATION DATASETS 
+	
+	*/
+	
 	
 	// GET THE LIST OF UNIQUE YEARS
 	levelsof Year, local(years)
@@ -152,4 +159,52 @@
 		restore, preserve
 	}
 
-	restore // RESTORE THE ORIGINAL DATASET (FINAL CLEANUP)
+	restore // RESTORE THE ORIGINAL DATASET 
+	
+	*/
+
+/*==============================================================================
+								EDUCATION DATA
+==============================================================================*/
+
+	foreach year of numlist 2014/2023{
+		
+		import delimited using "`input_data'/acs_education_data/ACSST5Y`year'.S1501-Data.csv", varnames(1) encoding(utf8) clear
+		
+		// KEEP RELEVANT VARIABLES
+		keep geo_id name s1501_c01_002e s1501_c01_004e s1501_c01_005e s1501_c01_007e s1501_c01_008e s1501_c01_009e s1501_c01_010e s1501_c01_011e s1501_c01_012e s1501_c01_013e s1501_c01_016e s1501_c01_019e s1501_c01_022e s1501_c01_025e
+		
+		destring s1501_c01_002e s1501_c01_004e s1501_c01_005e s1501_c01_007e s1501_c01_008e s1501_c01_009e s1501_c01_010e s1501_c01_011e s1501_c01_012e s1501_c01_013e s1501_c01_016e s1501_c01_019e s1501_c01_022e s1501_c01_025e, replace 
+		
+		rename name County 
+		rename s1501_c01_002e LESS_THAN_HS // Total!!Estimate!!Less than high school graduate
+		rename s1501_c01_004e SOME_COLLEGE_OR_ASSOCIATES // Total!!Estimate!!Some college or associate's degree
+		rename s1501_c01_005e BACHELORS_OR_HIGHER // Total!!Estimate!!Bachelor's degree or higher
+		rename s1501_c01_007e LESS_THAN_9TH_GRADE // Total!!Estimate!!Less than 9th grade
+		rename s1501_c01_008e NINTH_TO_12TH_NO_DIPLOMA // Total!!Estimate!!9th to 12th grade, no diploma
+		rename s1501_c01_009e HS_GRADUATE // Total!!Estimate!!High school graduate (includes equivalency)
+		rename s1501_c01_010e SOME_COLLEGE_NO_DEGREE // Total!!Estimate!!Some college, no degree
+		rename s1501_c01_011e ASSOCIATES_DEGREE // Total!!Estimate!!Associate's degree
+		rename s1501_c01_012e BACHELORS_DEGREE // Total!!Estimate!!Bachelor's degree
+		rename s1501_c01_013e GRADUATE_OR_PROFESSIONAL_DEGREE // Total!!Estimate!!Graduate or professional degree
+		rename s1501_c01_016e POP_25_TO_34 // Total!!Estimate!!Population 25 to 34 years
+		rename s1501_c01_019e POP_35_TO_44 // Total!!Estimate!!Population 35 to 44 years
+		rename s1501_c01_022e POP_45_TO_64 // Total!!Estimate!!Population 45 to 64 years
+		rename s1501_c01_025e POP_65_PLUS // Total!!Estimate!!Population 65 years and over
+			
+		// drop unused rows 
+		drop in 1/2
+			
+		// CLEAN COUNTY NAME 
+		// REMOVE " County, California" FROM EACH NAME
+		replace County = subinstr(County, " County, California", "", .)
+	
+		// save 
+		save "`output_data'/pop_education_`year'.dta", replace
+			
+	}
+
+	
+	
+	
+	
