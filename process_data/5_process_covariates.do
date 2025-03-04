@@ -62,7 +62,7 @@
 						HH INCOME AND TRANSIT DETAILS 
 ==============================================================================*/	
 	
-	/*
+	
 	
 	
 	/*
@@ -102,13 +102,13 @@
 	
 	clear
 	
-	*/
+	
 	
 /*==============================================================================
 								POPULATION DATA
 ==============================================================================*/	
 
-	/*
+	
 	import delimited using "`input_data'/population_estimates.csv", varnames(1) encoding(utf8) clear
 	
 	// unsuable rows 
@@ -161,7 +161,7 @@
 
 	restore // RESTORE THE ORIGINAL DATASET 
 	
-	*/
+
 
 /*==============================================================================
 								EDUCATION DATA

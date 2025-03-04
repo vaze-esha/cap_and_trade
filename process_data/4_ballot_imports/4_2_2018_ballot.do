@@ -115,7 +115,7 @@
 
 	/*
 	
-								JNOVEMBER BALLOT
+								NOVEMBER BALLOT
 								PROPOSITION 1-12
 
 			1. Proposition 1: Bonds to Fund Veteran & Affordable Housing  
