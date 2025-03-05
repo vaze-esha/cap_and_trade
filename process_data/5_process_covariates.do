@@ -57,15 +57,13 @@
 	di "`output_data'"
 /*============================================================================*/	
 
+/*
 
 /*==============================================================================
 						HH INCOME AND TRANSIT DETAILS 
 ==============================================================================*/	
 	
-	
-	
-	
-	/*
+
 	
 	1. Transportation (Commute by Car & Transit)
 	2. Household Income (Median Income)
@@ -205,6 +203,102 @@
 	}
 
 	
+/*==============================================================================
+								RACE DATA
+==============================================================================*/
 	
+	foreach year of numlist 2014 2015 2016 2017 2018 2019 2021 2022 2023{
+		
+		import delimited using "`input_data'/acs_race_2014_2023/ACSSE`year'.K200201-Data.csv", varnames(1) encoding(utf8) clear
+	
+		// drop margin of error columns 
+		keep geo_id name k200201_001e k200201_002e k200201_003e k200201_004e k200201_005e k200201_006e k200201_007e k200201_008e
+		rename name County 
+		rename k200201_001e totals_races
+		rename k200201_002e total_white
+		rename k200201_003e total_black
+		rename k200201_004e total_american_india_alaskan
+		rename k200201_005e total_asians
+		rename k200201_006e total_hawaaian_pacific_islander
+		rename k200201_007e total_other_race 
+		rename k200201_008e total_mixed
+		
+		// drop unused rows 
+		drop in 1/2
+		
+			
+		// CLEAN COUNTY NAME 
+		// REMOVE " County, California" FROM EACH NAME
+		replace County = subinstr(County, " County, California", "", .)
+		
+		// save 
+		save "`output_data'/race_`year'.dta", replace
+			
+	}
+	
+
+	
+/*==============================================================================
+								RENTER DATA
+==============================================================================*/
+
+	foreach year of numlist 2014/2023{
+		
+		import delimited using "`input_data'/acs_renter_data/ACSDT5Y`year'.B25003-Data.csv", varnames(1) encoding(utf8) clear
+
+		// drop margin of error columns 
+		keep geo_id name b25003_001e b25003_002e b25003_003e
+		
+		// rename columns 
+		rename name County 
+		rename b25003_001e total_homeowners_renters
+		rename b25003_002e total_homeowners
+		rename b25003_003e total_renters 
+		
+		// drop unused rows 
+		drop in 1/2
+		
+			
+		// CLEAN COUNTY NAME 
+		// REMOVE " County, California" FROM EACH NAME
+		replace County = subinstr(County, " County, California", "", .)
+		
+		// save 
+		save "`output_data'/renter_homeowner_`year'.dta", replace
+		
+		
+	}
+	
+/*==============================================================================
+								MERGE ALL COVARIATES
+==============================================================================*/
+
+
+	// make one file per year 
+	
+	local years 2014 2015 2016 2017 2018 2019 2021 2022 2023
+
+	foreach year in `years' {
+		// Load the first dataset
+		use "`output_data'/hh_income_transit_`year'.dta", clear
+		
+		// Merge race data
+		capture merge 1:1 County using "`output_data'/race_`year'.dta"
+		drop _merge
+		
+		// Merge education data
+		capture merge 1:1 County using "`output_data'/pop_education_`year'.dta"
+		drop _merge
+		
+		// Merge renter vs homeowner data
+		capture merge 1:1 County using "`output_data'/renter_homeowner_`year'.dta"
+		drop _merge
+		
+		// Save the merged dataset
+		save "`workingdir'/2_processing/covariates/covariates_`year'.dta", replace
+	}
+
+		
+
 	
 	
