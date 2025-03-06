@@ -4,14 +4,7 @@
 
 	PURPOSE:
 	
-		1. merge each cci_year dataset with instrument values 
-		
-	INPUTS:
-		1. 
-	
-	OUTPUTS:
-		1. 
-		
+		1. produce processed ballot data files 
 		
 ==============================================================================*/
 

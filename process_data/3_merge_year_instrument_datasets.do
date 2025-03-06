@@ -54,7 +54,7 @@
 	di "`input_data'"
 
 	* output dir
-	local output_data "`workingdir'/2_processing"
+	local output_data "`workingdir'/2_processing/cci_instrument_funding"
 	di "`output_data'"
 
 /*============================================================================*/	
@@ -91,8 +91,7 @@
 	drop _merge
 	
 	// FS 
-	// reg TOT_funding instrument, cluster(County)
-	
+	reg TOT_funding instrument, cluster(County)
 	save "`output_data'/2015.dta", replace 
 	
 /*==============================================================================
