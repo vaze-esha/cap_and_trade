@@ -95,8 +95,32 @@
 	------------------------------------------------------------------------------
 	*/
 	
-	restore 
+	// now let's exclude the zeroes and see what happens 
+	drop if instrument==0
+	reg TOT_funding instrument, cluster(County) 
 	
+	/*
+	
+	Linear regression                               Number of obs     =         21
+                                                F(1, 20)          =       1.33
+                                                Prob > F          =     0.2631
+                                                R-squared         =     0.0155
+                                                Root MSE          =     1.3e+07
+
+                                (Std. err. adjusted for 21 clusters in County)
+------------------------------------------------------------------------------
+             |               Robust
+ TOT_funding | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  instrument |   -7815091    6786219    -1.15   0.263    -2.20e+07     6340714
+       _cons |   1.45e+07    5576318     2.60   0.017      2884570    2.61e+07
+------------------------------------------------------------------------------
+*/
+
+	// reuslts worsen -- this means that these counties get a lot of funding, even 
+		// though they have no treated tracts 
+	
+	restore 
 	
 	
 	// 2016 
