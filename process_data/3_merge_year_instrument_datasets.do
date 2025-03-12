@@ -91,8 +91,9 @@
 	drop _merge
 	
 	// FS 
-	reg TOT_funding instrument, cluster(County)
+
 	save "`output_data'/2015.dta", replace 
+	
 	
 /*==============================================================================
 									2016
