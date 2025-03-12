@@ -11,14 +11,14 @@
 	
 	
 	// Load data
-		use "`input_data'/`year'.dta", clear
+		use "`input_data'/2020.dta", clear
 		
 		keep if CESVersion==2
 		// Drop duplicates
 		duplicates drop County TOT_funding instrument, force
 
 		// Merge with covariates
-		merge 1:1 County using "`workingdir'/2_processing/covariates/covariates_`year'.dta"
+		merge 1:1 County using "`workingdir'/2_processing/covariates/covariates_2020.dta"
 		drop if _merge == 2
 		drop _merge
 
@@ -71,22 +71,22 @@
 		// Full sample regressions (Stepwise Inclusion of Controls)
 		
 		reg log_funding instrument, cluster(County)
-		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", replace label tex(frag) ///
-			title("First Stage (Full Sample) `year'") addnote("Standard errors clustered at County level. CES version 2") ///
+		outreg2 using "`outputs'/fullsample_fs_reg_2020.tex", replace label tex(frag) ///
+			title("First Stage (Full Sample) 2020") addnote("Standard errors clustered at County level. CES version 2") ///
 
 		reg log_funding instrument MEDIAN_HH_INCOME, cluster(County)
-		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", append label tex(frag) ///
+		outreg2 using "`outputs'/fullsample_fs_reg_2020.tex", append label tex(frag) ///
 		keep(instrument) addtext(Median Household Income, YES)
 
 		reg log_funding instrument MEDIAN_HH_INCOME prop_nonwhite, cluster(County)
-		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", append label tex(frag) ///
+		outreg2 using "`outputs'/fullsample_fs_reg_2020.tex", append label tex(frag) ///
 		keep(instrument) addtext(Median Household Income, YES, Proportion Non-White, YES)
 
 		reg log_funding instrument MEDIAN_HH_INCOME prop_nonwhite prop_less_educated, cluster(County)
-		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", append label tex(frag) ///
+		outreg2 using "`outputs'/fullsample_fs_reg_2020.tex", append label tex(frag) ///
 		keep(instrument) addtext(Median Household Income, YES, Proportion Non-White, YES, Proportion Less Educated, YES)
 		
 		reg log_funding instrument MEDIAN_HH_INCOME prop_nonwhite prop_less_educated prop_transit_carpool, cluster(County)
-		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", append label tex(frag) ///
+		outreg2 using "`outputs'/fullsample_fs_reg_2020.tex", append label tex(frag) ///
 		keep(instrument) addtext(Median Household Income, YES, Proportion Non-White, YES, Proportion Less Educated, YES, Proportion Transit/Carpool, YES)
 	
