@@ -187,11 +187,7 @@
 	replace instrument = . if denom == 0  // Avoid division by zero
 	drop denom
 
-	// each county-year has one instrument level, only retain those 
-	egen Total_GGRF_Treatment_tracts = total(TotalProgramGGRFFunding) if Treat_Tract == 1, by(County Year)
-	egen Total_GGRF_Control_tracts = total(TotalProgramGGRFFunding) if Control_Tract == 1, by(County Year)
-
-	collapse (mean) instrument (sum) Total_GGRF_Treatment_tracts Total_GGRF_Control_tracts, by(Year County)
+	collapse (mean) instrument, by(Year County)
 	drop if instrument==. // tracts never in bandwidth
 
 	// not that there are some zeros here (true zeroes: tracts in bandwidht, none funded)
@@ -406,11 +402,7 @@
 	replace instrument = . if denom == 0  // Avoid division by zero
 	drop denom
 	
-	// each county-year has one instrument level, only retain those 
-	egen Total_GGRF_Treatment_tracts = total(TotalProgramGGRFFunding) if Treat_Tract == 1, by(County Year)
-	egen Total_GGRF_Control_tracts = total(TotalProgramGGRFFunding) if Control_Tract == 1, by(County Year)
-
-	collapse (mean) instrument (sum) Total_GGRF_Treatment_tracts Total_GGRF_Control_tracts, by(Year County)
+	collapse (mean) instrument, by(Year County)
 	drop if instrument==. // tracts never in bandwidth
 
 	// 248 deleted 
