@@ -34,7 +34,7 @@
 	local input_data "`workingdir'/2_processing/cci_instrument_funding"
 	
 	// output
-	local outputs "`workingdir'/3_output/tables"
+	local outputs "/Users/eshavaze/Dropbox/Apps/Overleaf/a3_emv_econ_494/tables"
 
 	
 /*============================================================================*/
@@ -106,7 +106,7 @@
 		
 		reg log_funding instrument, cluster(County)
 		outreg2 using "`outputs'/fullsample_fs_reg_2015.tex", replace label tex(frag) ///
-			title("First Stage (Full Sample) 2015") addnote("Standard errors clustered at County level. CES version 2") ///
+			title("2015") addnote("Standard errors clustered at County level. CES version 2") ///
 
 		reg log_funding instrument MEDIAN_HH_INCOME, cluster(County)
 		outreg2 using "`outputs'/fullsample_fs_reg_2015.tex", append label tex(frag) ///
@@ -115,10 +115,6 @@
 		reg log_funding instrument MEDIAN_HH_INCOME prop_nonwhite, cluster(County)
 		outreg2 using "`outputs'/fullsample_fs_reg_2015.tex", append label tex(frag) ///
 		keep(instrument) addtext(Median Household Income, YES, Proportion Non-White, YES)
-
-		reg log_funding instrument MEDIAN_HH_INCOME prop_nonwhite prop_less_educated, cluster(County)
-		outreg2 using "`outputs'/fullsample_fs_reg_2015.tex", append label tex(frag) ///
-		keep(instrument) addtext(Median Household Income, YES, Proportion Non-White, YES, Proportion Less Educated, YES)
 		
 		reg log_funding instrument MEDIAN_HH_INCOME prop_nonwhite prop_less_educated prop_transit_carpool, cluster(County)
 		outreg2 using "`outputs'/fullsample_fs_reg_2015.tex", append label tex(frag) ///
@@ -193,7 +189,7 @@
 		
 		reg log_funding instrument, cluster(County)
 		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", replace label tex(frag) ///
-			title("First Stage (Full Sample) `year'") addnote("Standard errors clustered at County level. CES version 2") ///
+			title("`year'") addnote("Standard errors clustered at County level. CES version 2") ///
 
 		reg log_funding instrument MEDIAN_HH_INCOME, cluster(County)
 		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", append label tex(frag) ///
@@ -202,10 +198,6 @@
 		reg log_funding instrument MEDIAN_HH_INCOME prop_nonwhite, cluster(County)
 		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", append label tex(frag) ///
 		keep(instrument) addtext(Median Household Income, YES, Proportion Non-White, YES)
-
-		reg log_funding instrument MEDIAN_HH_INCOME prop_nonwhite prop_less_educated, cluster(County)
-		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", append label tex(frag) ///
-		keep(instrument) addtext(Median Household Income, YES, Proportion Non-White, YES, Proportion Less Educated, YES)
 		
 		reg log_funding instrument MEDIAN_HH_INCOME prop_nonwhite prop_less_educated prop_transit_carpool, cluster(County)
 		outreg2 using "`outputs'/fullsample_fs_reg_`year'.tex", append label tex(frag) ///
