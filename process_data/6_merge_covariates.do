@@ -34,7 +34,7 @@
 	local input_data "`workingdir'/2_processing/cci_instrument_funding"
 	
 	// output
-	local outputs "/Users/eshavaze/Dropbox/cal_cap_and_trade/2_processing/final_datasets"
+	local output_data "/Users/eshavaze/Dropbox/cal_cap_and_trade/2_processing/final_datasets"
 
 /*==============================================================================
 										2015
