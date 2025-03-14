@@ -24,10 +24,10 @@
 	local workingdir "/Users/eshavaze/Dropbox/cal_cap_and_trade"
 	
 	// input 
-	local input_data "`workingdir'/2_processing/final_datasets"
+	local input_data "`workingdir'/2_processing/merged_outcomes_for_reg"
 	
 	// output
-	local outputs "/Users/eshavaze/Dropbox/Apps/Overleaf/a3_emv_econ_494/rf_no_controls"
+	local outputs "/Users/eshavaze/Downloads"
 
 	
 /*============================================================================*/
@@ -36,7 +36,26 @@
 		
 /*============================================================================*/
 
-
 /*==============================================================================
 							RF NO CONTROLS 
 ==============================================================================*/
+
+	use "`input_data'/2015_ces2_ballots.dta"
+	
+	reg Yes_Prop51 instrument 
+	
+	
+	// pool all years of data 
+	// year fe 
+	// county fe 
+	// cluster at the county level 
+	
+	// 2sls estimates without controls 
+	
+	// split ballots into environmental and non and report everything 
+	
+	// table structure:
+	
+	// 3 tables: OLS 2SLS In one table 
+	// RF 
+	// FS 

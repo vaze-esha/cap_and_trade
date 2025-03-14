@@ -48,19 +48,22 @@
 	import excel "`input_data'/ballot_june_2016.xls", sheet("Sheet1") cellrange(A4) firstrow clear
 	// empties
 	drop if Yes==. & No==.
+	destring Yes No, replace 
 	
 	// trim names 
 	replace A = trim(A)
 	rename A County
-	
+	rename Yes Yes_Prop50
+	rename No No_Prop50
+
 	// dropping unusable rows 
 	drop if County == "Percent"
 	drop if County == "State Totals"
 	
 	// generate pass binary 
-	gen prop_yes = Yes/(Yes+No)
-	gen pass_binary = 1 if prop_yes>0.50 // majority vote
-	replace pass_binary = 0 if pass_binary==.
+	gen prop_yes_50 =  Yes_Prop50 / (Yes_Prop50 + No_Prop50)
+	gen pass_binary_50 = 1 if prop_yes_50>0.50 // majority vote
+	replace pass_binary_50 = 0 if pass_binary_50==.
 
 	notes: PROP50 SUSPENSION OF LEGISLATORS (passed) file made on TS
      
@@ -139,21 +142,19 @@
 		// Drop first three rows 
 		drop in 1/3
 
-		// Rename variables
-		rename (Yes_Prop`prop' No_Prop`prop') (Yes No)
-
 		// Drop rows where County is empty
 		drop if County == ""
 
 		// Trim any trailing whitespace in the County variable
 		replace County = trim(County)
-		destring Yes, replace 
-		destring No, replace
+		destring Yes_Prop`prop', replace 
+		destring No_Prop`prop', replace
 
 		// Generate pass binary based on majority vote
-		gen prop_yes = Yes / (Yes + No)
-		gen pass_binary = 1 if prop_yes > 0.50 // Majority vote (yes > no)
-		replace pass_binary = 0 if pass_binary == .
+		gen prop_yes_`prop' =  Yes_Prop`prop' / (Yes_Prop`prop' + No_Prop`prop')
+		gen pass_binary_`prop' = 1 if prop_yes_`prop' > 0.50 // Majority vote (yes > no)
+		replace pass_binary_`prop' = 0 if pass_binary_`prop' == .
+
 
 		// Save the processed dataset
 		save "`output_data'/yearly_ballots/2016_prop_`prop'.dta", replace
