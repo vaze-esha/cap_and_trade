@@ -47,16 +47,44 @@
 
 	save "`input_data'/appended_all_years.dta", replace
 
+/*============================================================================*/
+	
+						// APPEND ALL BALLOTS
+		
+/*============================================================================*/
 	
 	// merged with outcomes data 
 	
 	clear
-	use "`input_data'/merged_outcomes_for_reg/2015_ces2_ballots.dta"
+	use "`input_data'/yearly_ballots/2012_prop_28.dta"
 
-	foreach file in 2016_ces2_ballots.dta 2017_ces2_ballots.dta 2018_ces2_ballots.dta 2018_ces3_ballots.dta ///
-					2019_ces3_ballots.dta 2020_ces3_ballots.dta 2021_ces3_ballots.dta 2022_ces3_ballots.dta {
-		append using "`input_data'/merged_outcomes_for_reg/`file'"
-		drop ProjectIDNumber AgencyName ProgramName ProgramDescription SubProgramName ProjectDescription CensusTract SenateDistrict AssemblyDistrict ApplicantsAssisted geo_id ProjectLifeYears DateOperational ProjectCompletionDate FundingRecipient TotalProjectCost BufferAmount BufferCount CESVersion CESVersionCalc IntermediaryAdminExpensesCalc
+	local files 2012_prop_29 2012_prop_30 2012_prop_31 2012_prop_32 2012_prop_33 2012_prop_34 2012_prop_35 2012_prop_36 2012_prop_37 2012_prop_38 2012_prop_39 2012_prop_40 2014_prop_1 2014_prop_2 2014_prop_41 2014_prop_42 2014_prop_45 2014_prop_46 2014_prop_47 2014_prop_48 2016_prop_50 2016_prop_51 2016_prop_52 2016_prop_53 2016_prop_54 2016_prop_55 2016_prop_56 2016_prop_57 2016_prop_58 2016_prop_59 2016_prop_60 2016_prop_61 2016_prop_62 2016_prop_63 2016_prop_64 2016_prop_65 2016_prop_66 2016_prop_67 2018_prop_1 2018_prop_10 2018_prop_11 2018_prop_12 2018_prop_2 2018_prop_3 2018_prop_4 2018_prop_5 2018_prop_6 2018_prop_68 2018_prop_69 2018_prop_7 2018_prop_70 2018_prop_71 2018_prop_72 2018_prop_8 2020_prop_14 2020_prop_15 2020_prop_16 2020_prop_17 2020_prop_18 2020_prop_19 2020_prop_20 2020_prop_21 2020_prop_22 2020_prop_23 2020_prop_24 2020_prop_25 2022_prop_1 2022_prop_26 2022_prop_27 2022_prop_28 2022_prop_29 2022_prop_30 2022_prop_31
+
+	foreach file in `files' {
+		merge 1:1 County using "`input_data'/yearly_ballots/`file'"
+		drop _merge
+		
 	}
 
-	save "`input_data'/ces_all_ballots_appended.dta", replace
+	save "`input_data'/all_ballots_appended.dta", replace
+	clear
+
+/*============================================================================*/
+	
+								// merge 
+		
+/*============================================================================*/
+	
+	
+	// now merge with appended pooled sample for all years 
+	use  "`input_data'/all_ballots_appended.dta"
+	
+	merge 1:m County using "`input_data'/appended_all_years.dta", keepusing(Year *)
+	drop if _merge == 1 
+	
+	save "`input_data'/rf_dataset.dta", replace 
+	
+
+	
+	
+	
