@@ -28,7 +28,7 @@
 	
 
 	// output
-	local outputs "/Users/eshavaze/Downloads"
+	local outputs "/Users/eshavaze/Dropbox/Apps/Overleaf/a3_emv_econ_494/tables"
 
 	
 /*============================================================================*/
@@ -70,7 +70,7 @@
 	local props_2020 14 15 16 17 18 19 20 21 22 23 24 25
 	local props_2022 1 26 27 28 29 30 31
 
-	
+	/*
 	* Loop through years
 	foreach year in 2012 2014 2016 2018 2020 2022 {
 		* Get the propositions for this year
@@ -121,11 +121,59 @@
 
 		display "Tables for `year' saved successfully."
 	}
-
+*/
 	
 	
 
-	
+	foreach year in 2012 2014 2016 2018 2020 2022 {
+		* Get the propositions for this year
+		local props `props_`year''
+
+		* Reset stored estimates
+		estimates clear
+
+		* Run regressions for each proposition
+		local first_ols = 1
+		local first_sls = 1
+		foreach num in `props' {
+			preserve   // Prevent permanent changes
+
+			* Keep only relevant variables
+			keep County county_id Year instrument prop_yes_`num' prop_nonwhite prop_less_educated prop_transit_carpool TOTAL_POPULATION log_funding
+
+			* Run OLS regression
+			reg prop_yes_`num' log_funding prop_nonwhite prop_less_educated prop_transit_carpool, cluster(county_id)
+			est store ols_prop_`num'
+
+			* Run 2SLS (IV) regression
+			ivreg2 prop_yes_`num' (log_funding = instrument) prop_nonwhite prop_less_educated prop_transit_carpool, cluster(county_id)
+			est store sls_prop_`num'
+
+			* Output OLS estimates to a separate table
+			if `first_ols' == 1 {
+				outreg2 [ols_prop_`num'] using "`outputs'/`year'_ols_controls.tex", replace label noaster ///
+					title("OLS Estimates for `year'")
+				local first_ols = 0
+			}
+			else {
+				outreg2 [ols_prop_`num'] using "`outputs'/`year'_ols_controls.tex", append label noaster
+			}
+
+			* Output 2SLS (IV) estimates to a separate table
+			if `first_sls' == 1 {
+				outreg2 [sls_prop_`num'] using "`outputs'/`year'_2sls_controls.tex", replace label noaster ///
+					title("2SLS Estimates for `year'")
+				local first_sls = 0
+			}
+			else {
+				outreg2 [sls_prop_`num'] using "`outputs'/`year'_2sls_controls.tex", append label noaster
+			}
+
+			restore   // Reload full dataset for next iteration
+		}
+
+		display "Tables for `year' saved successfully."
+	}
 	
 // prop_nonwhite prop_less_educated prop_transit_carpool
 	
