@@ -153,10 +153,23 @@
 	// (78 observations deleted)
 	destring CES20Score, replace 
 	
+	/*
+	
+											BANDWIDHT = 3.86
+	
 	gen Treat_Tract = (CES20Score > 32.66230828250767 & CES20Score <= 36.522308282507666) // for ver 2 
 
 	gen Control_Tract = inrange(CES20Score, 28.802308282507667, 32.66230828250767)
 
+	*/
+	
+	//+2
+	gen Treat_Tract = (CES20Score > 32.66230828250767 & CES20Score <= 38.52230828) // updated bandwidth
+
+	gen Control_Tract = inrange(CES20Score, 26.80230828, 32.66230828250767) // updated bandwidth
+
+	
+	
 	/*
 	
 	tab Year if Treat_Tract==1
@@ -369,9 +382,20 @@
 	sort CensusTract Year
 	tostring CensusTract, replace 
 	
+	/*
+	
+									BANDWIDTH = 3.86
+						
 	gen Treat_Tract = (CES30Score >= 38.68746  & CES30Score <= 42.54746) // for ver 3
 
 	gen Control_Tract = (CES30Score >=34.82746 & CES30Score < 38.68746)
+	*/
+	
+	//+2
+	gen Treat_Tract = (CES30Score >= 38.68746  & CES30Score <= 44.54746) // for ver 3
+
+	gen Control_Tract = (CES30Score >=32.82746 & CES30Score < 38.68746)
+	
 	
 	/*
 	

@@ -27,7 +27,7 @@
 	local input_data "`workingdir'/2_processing"
 	
 	// output
-	local outputs "/Users/eshavaze/Dropbox/Apps/Overleaf/a3_emv_econ_494/tables"
+	local outputs "/Users/eshavaze/Downloads"
 
 	
 /*============================================================================*/
@@ -40,7 +40,7 @@
 							FS NO CONTROLS 
 ==============================================================================*/
 
-/*
+
 	use "`input_data'/appended_all_years.dta"
 	
 	
@@ -74,7 +74,7 @@
 	est store reg2
 
 	//output
-	outreg2 [reg1 reg2] using "`outputs'/combined_table.tex", replace label noaster ///
+	outreg2 [reg1 reg2] using "`outputs'/combined_table.tex", replace label ///
 		title("Regression Results for Log Funding") 
 	
 	/*
@@ -126,7 +126,7 @@
 	local props_2022 1 26 27 28 29 30 31
 
 	
-	/*
+	
 	* Loop through years
 	foreach year in 2012 2014 2016 2018 2020 2022 {
 		* Get the propositions for this year
@@ -149,12 +149,12 @@
 
 			* Append to the table instead of replacing
 			if `first' == 1 {
-				outreg2 using "`outputs'/table_`year'.tex", replace label noaster ///
+				outreg2 using "`outputs'/table_`year'.tex", replace label ///
 					title("Reduced Form for `year' Propositions")
 				local first = 0
 			}
 			else {
-				outreg2 using "`outputs'/table_`year'.tex", append label noaster
+				outreg2 using "`outputs'/table_`year'.tex", append label 
 			}
 
 			restore   // Reload full dataset for next iteration
@@ -162,9 +162,9 @@
 
 		display "Table for `year' saved successfully."
 	}
-*/
+
 	
-	
+	/*
 	* Loop through years
 	foreach year in 2012 2014 2016 2018 2020 2022 {
 		* Get the propositions for this year

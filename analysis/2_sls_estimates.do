@@ -28,7 +28,7 @@
 	
 
 	// output
-	local outputs "/Users/eshavaze/Dropbox/Apps/Overleaf/a3_emv_econ_494/tables"
+	local outputs "/Users/eshavaze/Downloads"
 
 	
 /*============================================================================*/
@@ -70,7 +70,7 @@
 	local props_2020 14 15 16 17 18 19 20 21 22 23 24 25
 	local props_2022 1 26 27 28 29 30 31
 
-	/*
+	
 	* Loop through years
 	foreach year in 2012 2014 2016 2018 2020 2022 {
 		* Get the propositions for this year
@@ -98,22 +98,22 @@
 
 			* Output OLS estimates to a separate table
 			if `first_ols' == 1 {
-				outreg2 [ols_prop_`num'] using "`outputs'/`year'_ols.tex", replace label noaster ///
+				outreg2 [ols_prop_`num'] using "`outputs'/`year'_ols.tex", replace label ///
 					title("OLS Estimates for `year'")
 				local first_ols = 0
 			}
 			else {
-				outreg2 [ols_prop_`num'] using "`outputs'/`year'_ols.tex", append label noaster
+				outreg2 [ols_prop_`num'] using "`outputs'/`year'_ols.tex", append label 
 			}
 
 			* Output 2SLS (IV) estimates to a separate table
 			if `first_sls' == 1 {
-				outreg2 [sls_prop_`num'] using "`outputs'/`year'_2sls.tex", replace label noaster ///
+				outreg2 [sls_prop_`num'] using "`outputs'/`year'_2sls.tex", replace label  ///
 					title("2SLS Estimates for `year'")
 				local first_sls = 0
 			}
 			else {
-				outreg2 [sls_prop_`num'] using "`outputs'/`year'_2sls.tex", append label noaster
+				outreg2 [sls_prop_`num'] using "`outputs'/`year'_2sls.tex", append label 
 			}
 
 			restore   // Reload full dataset for next iteration
@@ -121,9 +121,9 @@
 
 		display "Tables for `year' saved successfully."
 	}
-*/
+
 	
-	
+	/*
 
 	foreach year in 2012 2014 2016 2018 2020 2022 {
 		* Get the propositions for this year
