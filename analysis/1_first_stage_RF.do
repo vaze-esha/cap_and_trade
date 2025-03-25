@@ -41,7 +41,7 @@
 ==============================================================================*/
 
 
-	use "`input_data'/appended_all_years.dta"
+	use "`input_data'/appended_all_years_2018.dta"
 	
 	
 	encode County, gen(county_id)  // Convert county to numeric ID
