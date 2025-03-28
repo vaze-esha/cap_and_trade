@@ -199,7 +199,7 @@
 			est store ols_prop_`num'
 
 			* Run 2SLS (IV) regression
-			ivreg2 prop_yes_`num' (log_cumulative_funding = avg_instrument) prop_nonwhite prop_less_educated prop_transit_carpool, cluster(county_id)
+			ivreg2 prop_yes_`num' (log_cumulative_funding = avg_instrument), cluster(county_id)
 			est store sls_prop_`num'
 
 			* Output OLS estimates to a separate table
