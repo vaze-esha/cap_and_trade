@@ -39,7 +39,7 @@
 /*==============================================================================
 							FS NO CONTROLS and CONTROLS 
 ==============================================================================*/
-
+/*
 	use "`input_data'/appended_all_years_2018.dta"
 	
 	
@@ -74,7 +74,7 @@
 	est store reg1
 
 	//ols2
-	reg log_cumulative_funding avg_instrument prop_nonwhite prop_less_educated prop_transit_carpool, vce(cluster county_id)
+	reg log_cumulative_funding avg_instrument prop_nonwhite prop_less_educated, vce(cluster county_id)
 	est store reg2
 
 	//output
@@ -113,7 +113,7 @@
 	egen avg_instrument = mean(instrument), by(County Year)
 	
 	// define local environmental propositions only 
-	local props_2018 1 10 12 3 6 68 69 72
+	local props_2018 3 6 68 69 72
 	
 	* Loop through years
 	foreach year in 2018 {
@@ -129,7 +129,7 @@
 			preserve   // Prevent permanent changes
 
 			* Run regression
-			reg prop_yes_`num' avg_instrument prop_nonwhite prop_less_educated prop_transit_carpool, vce(cluster county_id)
+			reg prop_yes_`num' avg_instrument prop_nonwhite prop_less_educated, vce(cluster county_id)
 			est store prop_`num'
 
 			* Append to the table instead of replacing
@@ -149,6 +149,8 @@
 	}
 	
 	clear
+	
+
 	
 /*==============================================================================
 									2SLS
@@ -178,7 +180,7 @@
 	egen avg_instrument = mean(instrument), by(County Year)
 	
 	// define local environmental propositions only 
-	local props_2018 1 10 12 3 6 68 69 72
+	local props_2018 3 6 68 69 72
 	
 	* Loop through years
 	foreach year in 2018 {
@@ -195,11 +197,11 @@
 			preserve   // Prevent permanent changes
 			
 			* Run OLS regression
-			reg prop_yes_`num' log_cumulative_funding prop_nonwhite prop_less_educated prop_transit_carpool, vce(cluster county_id)
+			reg prop_yes_`num' log_cumulative_funding, vce(cluster county_id)
 			est store ols_prop_`num'
 
 			* Run 2SLS (IV) regression
-			ivreg2 prop_yes_`num' (log_cumulative_funding = avg_instrument) prop_nonwhite prop_less_educated prop_transit_carpool, cluster(county_id)
+			ivreg2 prop_yes_`num' (log_cumulative_funding = avg_instrument), cluster(county_id)
 			est store sls_prop_`num'
 
 			* Output OLS estimates to a separate table
@@ -227,4 +229,7 @@
 
 		display "Tables for `year' saved successfully."
 	}
+	
+	*/
+	
 	

@@ -51,6 +51,7 @@
 	
 }
 	save "`output_data'/2015_ces2_ballots.dta", replace 
+	
 
 	clear 
 
@@ -75,6 +76,7 @@
 
 }
 	save "`output_data'/2016_ces2_ballots.dta", replace 
+
 
 	clear
 	
