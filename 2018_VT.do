@@ -81,29 +81,26 @@
 	replace Total_Voters = subinstr(Total_Voters, ",", "", .)
 
 	destring Total_Voters, replace 
+	destring Turnout_Eligible, replace 
 		
 	* OLS regression
-	reg Total_Voters log_cumulative_funding, vce(cluster county_id)
+	reg  Turnout_Eligible log_cumulative_funding, vce(cluster county_id)
 	est store ols
+	
+	* ols controls 
+	reg  Turnout_Eligible log_cumulative_funding prop_nonwhite prop_less_educated, vce(cluster county_id)
+	est store olsc
 
 	* 2SLS (IV) regression
-	ivreg2 Total_Voters (log_cumulative_funding = avg_instrument), cluster(county_id)
+	ivreg2  Turnout_Eligible (log_cumulative_funding = avg_instrument), cluster(county_id)
 	est store tsls
+	
+	* 2SLS (IV) regression controls 
+	ivreg2  Turnout_Eligible (log_cumulative_funding = avg_instrument) prop_nonwhite prop_less_educated, cluster(county_id)
+	est store tslsc
+	
 
-	* Check stored estimates before exporting
-	estimates dir
-
-	* Ensure outreg2 is installed
-	cap which outreg2
-	if _rc != 0 ssc install outreg2
-
-	* Export results: OLS & 2SLS side by side
-	outreg2 [ols] [tsls] using "`outputs'/2018_regressions.tex", replace label ///
-		title("OLS and 2SLS Estimates for 2018") ///
-		ctitle("OLS", "2SLS") ///
-		keep(log_cumulative_funding _cons) ///
-		addstat("Observations", e(N), "R-squared", e(r2)) ///
-		nocons
-
-	* Confirm the table is saved
-	display "Regression table for 2018 saved successfully."
+	//output
+	outreg2 [ols olsc tsls tslsc] using "`outputs'/2018_vt.tex", replace label ///
+		title("Voter Turnout") 
+		
