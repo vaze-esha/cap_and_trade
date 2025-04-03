@@ -39,7 +39,7 @@
 /*==============================================================================
 							FS NO CONTROLS and CONTROLS 
 ==============================================================================*/
-/*
+
 	use "`input_data'/appended_all_years_2018.dta"
 	
 	
@@ -84,6 +84,7 @@
 		
 	clear
 	
+
 /*==============================================================================
 							RF NO CONTROLS 
 ==============================================================================*/
@@ -179,6 +180,9 @@
 	// calculate an average of instrument over the years 
 	egen avg_instrument = mean(instrument), by(County Year)
 	
+	// label var
+	label variable log_cumulative_funding "Log(Cumulative Funding)"
+	
 	// define local environmental propositions only 
 	local props_2018 3 6 68 69 72
 	
@@ -227,9 +231,43 @@
 			restore   // Reload full dataset for next iteration
 		}
 
-		display "Tables for `year' saved successfully."
+	// Combine all OLS and 2SLS results into induvidual plots 
+    coefplot ///
+    (ols_prop_3, label("Prop 3")) ///
+    (ols_prop_6, label("Prop 6")) ///
+    (ols_prop_68, label("Prop 68")) ///
+    (ols_prop_69, label("Prop 69")) ///
+    (ols_prop_72, label("Prop 72")), ///
+    vert ///
+    title("Votes in Favour (OLS)") ///
+    xlabel(, angle(360) grid) ///
+    ylabel(, grid) ///
+    drop(_cons) ///
+    xline(0)
+
+	graph export "`outputs'/ols_coefplot.png", replace 
+		
+	coefplot ///
+    (sls_prop_3, label("Prop 3")) ///
+    (sls_prop_6, label("Prop 6")) ///
+    (sls_prop_68, label("Prop 68")) ///
+    (sls_prop_69, label("Prop 69")) ///
+    (sls_prop_72, label("Prop 72")), ///
+    vert ///
+    title("Votes in Favour (2SLS)") ///
+    xlabel(, angle(360) grid) ///
+    ylabel(, grid) ///
+    drop(_cons) ///
+    xline(0)
+
+	graph export "`outputs'/2sls_coefplot.png", replace 
+   
+    display "Coefplot for `year' generated successfully."
 	}
 	
-	*/
+
+	
+	
+	
 	
 	
