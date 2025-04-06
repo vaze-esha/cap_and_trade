@@ -147,3 +147,42 @@
 	
 	
 	
+	
+/*============================================================================*/
+	
+						// APPEND ALL BALLOTS 2014 only 
+		
+/*============================================================================*/
+	
+	// merged with outcomes data 
+
+	use "`input_data'/yearly_ballots/2012_prop_28.dta"
+
+	local files 2014_prop_1 2014_prop_2 2014_prop_41 2014_prop_42 2014_prop_45 2014_prop_46 2014_prop_47 2014_prop_48
+
+	foreach file in `files' {
+		merge 1:1 County using "`input_data'/yearly_ballots/`file'"
+		drop _merge
+		
+	}
+
+	save "`input_data'/2014_ballots_appended.dta", replace
+	clear
+
+/*============================================================================*/
+	
+								// merge 
+		
+/*============================================================================*/
+	
+	
+	// now merge with appended pooled sample for all years 
+	use  "`input_data'/2014_ballots_appended.dta"
+	
+	merge 1:m County using "`input_data'/appended_all_years_2018.dta", keepusing(Year *)
+	drop if _merge == 1 
+	
+	save "`input_data'/rf_dataset_placebo.dta", replace 
+	
+	
+	

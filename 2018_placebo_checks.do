@@ -1,5 +1,5 @@
 /*==============================================================================
-								2018 ONLY 
+								2018 PLACEBO CHECKS
 ================================================================================
 
 	PURPOSE:
@@ -94,7 +94,7 @@
 ==============================================================================*/
 
 
-	use "`input_data'/rf_dataset.dta"
+	use "`input_data'/rf_dataset_placebo.dta"
 
 	encode County, gen(county_id)  // Convert county to numeric ID
 	
@@ -118,10 +118,10 @@
 	egen avg_instrument = mean(instrument), by(County Year)
 	
 	// define local environmental propositions only 
-	local props_2018 3 6 68 69 72
+	local props_2014 1 
 	
 	* Loop through years
-	foreach year in 2018 {
+	foreach year in 2014 {
 		* Get the propositions for this year
 		local props `props_`year''
 
@@ -134,7 +134,7 @@
 			preserve   // Prevent permanent changes
 
 			* Run regression
-			reg prop_yes_`num' avg_instrument prop_nonwhite prop_less_educated, vce(cluster county_id)
+			reg prop_yes_`num' avg_instrument, vce(cluster county_id)
 			est store prop_`num'
 
 			* Append to the table instead of replacing
@@ -161,7 +161,7 @@
 									2SLS
 ==============================================================================*/
 	
-	use "`input_data'/rf_dataset.dta"
+	use "`input_data'/rf_dataset_placebo.dta"
 
 	encode County, gen(county_id)  // Convert county to numeric ID
 	
@@ -188,7 +188,7 @@
 	label variable log_cumulative_funding "Log(Cumulative Funding)"
 	
 	// define local environmental propositions only 
-	local props_2018 3 6 68 69 72
+	local props_2014 1
 	
 	* Loop through years
 	foreach year in 2018 {
@@ -234,7 +234,9 @@
 
 			restore   // Reload full dataset for next iteration
 		}
-		
+	
+	
+	/*	
 	// Combine all OLS and 2SLS results into induvidual plots 
     coefplot ///
     (ols_prop_3, label("Prop 3: Water Infra Bonds")) ///

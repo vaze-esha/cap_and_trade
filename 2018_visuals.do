@@ -101,12 +101,48 @@
 	   
 	graph export "`outputs'/instrument_dist.png", replace
 
-	
 /*==============================================================================
-								
+									MAPS!!!	
 ==============================================================================*/
 	
+	//shp2dta using "/Users/eshavaze/Downloads/ca_counties/CA_Counties.shp", database(counties.dta) coordinates(coords.dta) genid(county_id)
+	
+	//use "`workingdir'/1_input/shape_data/counties.dta"
+	
+	//replace NAME = strtrim(NAME)
+	//rename NAME County
+	
+	//save "`workingdir'/1_input/shape_data/counties.dta", replace 
+
+	// MAKING A MAP OF FUNDING 
+	merge m:1 County using "`workingdir'/1_input/shape_data/counties.dta"
+	preserve 
+	keep if Year == 2015
+	spmap log_cumulative_funding using "`workingdir'/1_input/shape_data/coords.dta", id(county_id) fcolor(Greens2) 
+	graph export "`outputs'/funding_map_2015.png", replace
+	restore
+	
+	// MAKING A MAP OF FUNDING 
+	preserve 
+	keep if Year == 2016
+	spmap log_cumulative_funding using "`workingdir'/1_input/shape_data/coords.dta", id(county_id) fcolor(Greens3) 
+	graph export "`outputs'/funding_map_2016.png", replace
+	restore
+	
+	// MAKING A MAP OF FUNDING 
+	preserve 
+	keep if Year == 2017
+	spmap log_cumulative_funding using "`workingdir'/1_input/shape_data/coords.dta", id(county_id) fcolor(Greens2) 
+	graph export "`outputs'/funding_map_2017.png", replace
+	restore
+	
+	
+	// MAKING A MAP OF FUNDING 
+	preserve 
+	keep if Year == 2018
+	spmap log_cumulative_funding using "`workingdir'/1_input/shape_data/coords.dta", id(county_id) fcolor(Greens2)
+	graph export "`outputs'/funding_map_2018.png", replace
+	restore
 	
 
-	
 	
