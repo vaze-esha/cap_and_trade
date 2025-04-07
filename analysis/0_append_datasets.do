@@ -142,6 +142,7 @@
 	
 	merge 1:m County using "`input_data'/appended_all_years_2018.dta", keepusing(Year *)
 	drop if _merge == 1 
+	drop _merge
 	
 	save "`input_data'/rf_dataset.dta", replace 
 	
@@ -183,6 +184,61 @@
 	drop if _merge == 1 
 	
 	save "`input_data'/rf_dataset_placebo.dta", replace 
+	
+
+/*============================================================================*/
+	
+						// APPEND ALL BALLOTS 2014 only 
+		
+/*============================================================================*/
+	
+	* Start with first proposition
+	use "`input_data'/yearly_ballots/2012_prop_28.dta", clear
+	rename pass_binary_28 pass28  // make it easier to track
+	tempfile merged
+	save `merged'
+
+	* Loop through the rest
+	local props 29 30 38 39
+
+	foreach p of local props {
+		use "`input_data'/yearly_ballots/2012_prop_`p'.dta", clear
+		rename pass_binary_`p' pass`p'
+		merge 1:1 County using `merged'
+		drop _merge
+		save `merged', replace
+	}
+
+	use `merged', clear
+
+	* Now construct tax aversion index (e.g., sum of "No" votes)
+	gen tax_averse_score = (pass28 == 0) + (pass29 == 0) + (pass30 == 0) + (pass38 == 0) + (pass39 == 0)
+
+	* Optional binary version: high tax aversion if 3+ of 5 "No"
+	gen high_tax_averse = (tax_averse_score >= 3)
+
+	label var tax_averse_score "Number of No votes on 2012 tax/spend props"
+	label var high_tax_averse "High tax aversion (3+ No votes)"
+
+
+	save "`input_data'/2012_ballots_appended.dta", replace
+
+	clear
+
+/*============================================================================*/
+	
+								// merge 
+		
+/*============================================================================*/
+	
+	
+	// now merge with appended pooled sample for all years 
+	use  "`input_data'/2012_ballots_appended.dta"
+	
+	merge 1:m County using"`input_data'/rf_dataset.dta", keepusing(Year *)
+	drop if _merge == 1 
+	
+	save "`input_data'/rf_dataset_mechanisms_tax.dta", replace 
 	
 	
 	

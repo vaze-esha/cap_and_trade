@@ -40,276 +40,109 @@
 
 */
 
-/*==============================================================================
-							FS NO CONTROLS and CONTROLS 
-==============================================================================*/
+	* Load data
+	use "`input_data'/rf_dataset_placebo.dta", clear
 
-	use "`input_data'/appended_all_years_2018.dta"
-	
-	
-	encode County, gen(county_id)  // Convert county to numeric ID
-	
-	// choose max instrument val for 2018 (2 vals based on ces version)
+	* Prepare panel structure and variables
+	encode County, gen(county_id)
 	egen max_instrument = max(instrument) if Year == 2018, by(county_id)
-
-	// Keep only observations where instrument equals the max for each county in 2018
 	keep if Year != 2018 | instrument == max_instrument
-
-	//Drop the temporary variable
 	drop max_instrument
 
-	
-	// SET PANEL 
-	xtset county_id Year  // Panel setup (if county-year is panel data)
-	
-	
-	// sum all funding receieved until 2018 by each county
+	xtset county_id Year
+
 	bysort County (Year): gen cumulative_funding = sum(TOT_funding)
 	gen log_cumulative_funding = log(cumulative_funding)
-	
-	// calculate an average of instrument over the years 
 	egen avg_instrument = mean(instrument), by(County Year)
 
-	// init out table
-	estimates clear
-	
-	// ols1
-	reg log_cumulative_funding avg_instrument, vce(cluster county_id)
-	est store reg1
-
-	//ols2
-	reg log_cumulative_funding avg_instrument prop_nonwhite prop_less_educated, vce(cluster county_id)
-	est store reg2
-
-	//output
-	outreg2 [reg1 reg2] using "`outputs'/combined_table.tex", replace label ///
-		title("Regression Results for Log Funding") 
-		
-	
-	clear
-	
-
-/*==============================================================================
-							RF NO CONTROLS 
-==============================================================================*/
-
-
-	use "`input_data'/rf_dataset_placebo.dta"
-
-	encode County, gen(county_id)  // Convert county to numeric ID
-	
-	// choose max instrument val for 2018 (2 vals based on ces version)
-	egen max_instrument = max(instrument) if Year == 2018, by(county_id)
-
-	// Keep only observations where instrument equals the max for each county in 2018
-	keep if Year != 2018 | instrument == max_instrument
-
-	//Drop the temporary variable
-	drop max_instrument
-
-	// SET PANEL 
-	xtset county_id Year  // Panel setup (if county-year is panel data)
-	
-	// sum all funding receieved until 2018 by each county
-	bysort County (Year): gen cumulative_funding = sum(TOT_funding)
-	gen log_cumulative_funding = log(cumulative_funding)
-	
-	// calculate an average of instrument over the years 
-	egen avg_instrument = mean(instrument), by(County Year)
-	
-	// define local environmental propositions only 
-	local props_2014 1 
-	
-	* Loop through years
-	foreach year in 2014 {
-		* Get the propositions for this year
-		local props `props_`year''
-
-		* Reset stored estimates
-		estimates clear
-
-		* Run regressions for each proposition
-		local first = 1
-		foreach num in `props' {
-			preserve   // Prevent permanent changes
-
-			* Run regression
-			reg prop_yes_`num' avg_instrument, vce(cluster county_id)
-			est store prop_`num'
-
-			* Append to the table instead of replacing
-			if `first' == 1 {
-				outreg2 using "`outputs'/rf_`year'.tex", replace label ///
-					title("Reduced Form for `year' Propositions")
-				local first = 0
-			}
-			else {
-				outreg2 using "`outputs'/rf_`year'.tex", append label 
-			}
-
-			restore   // Reload full dataset for next iteration
-		}
-
-		display "Table for `year' saved successfully."
-	}
-	
-	clear
-	
-
-	
-/*==============================================================================
-									2SLS
-==============================================================================*/
-	
-	use "`input_data'/rf_dataset_placebo.dta"
-
-	encode County, gen(county_id)  // Convert county to numeric ID
-	
-	// choose max instrument val for 2018 (2 vals based on ces version)
-	egen max_instrument = max(instrument) if Year == 2018, by(county_id)
-
-	// Keep only observations where instrument equals the max for each county in 2018
-	keep if Year != 2018 | instrument == max_instrument
-
-	//Drop the temporary variable
-	drop max_instrument
-
-	// SET PANEL 
-	xtset county_id Year  // Panel setup (if county-year is panel data)
-	
-	// sum all funding receieved until 2018 by each county
-	bysort County (Year): gen cumulative_funding = sum(TOT_funding)
-	gen log_cumulative_funding = log(cumulative_funding)
-	
-	// calculate an average of instrument over the years 
-	egen avg_instrument = mean(instrument), by(County Year)
-	
-	// label var
+	* Label variable for nicer output
 	label variable log_cumulative_funding "Log(Cumulative Funding)"
+
+	*==============================================================================
+	* RUN ALL REGRESSIONS FOR PROP 1 IN 2014 AND OUTPUT TO ONE TABLE
+	*==============================================================================
+
+	* OLS
+	reg prop_yes_1 log_cumulative_funding, vce(cluster county_id)
+	est store ols
+
+	* 2SLS
+	ivreg2 prop_yes_1 (log_cumulative_funding = avg_instrument), cluster(county_id)
+	est store iv
+
+	* Output all results into one table
+	outreg2 [ols iv] using "`outputs'/placebo_table.tex", replace label ///
+		title("Placebo Check Regressions for Prop 1 (2014)") ///
+		ctitle("OLS" "2SLS")
+
+	display "Table saved to Downloads"
 	
-	// define local environmental propositions only 
-	local props_2014 1
+	clear 
 	
-	* Loop through years
-	foreach year in 2018 {
-		* Get the propositions for this year
-		local props `props_`year''
-
-		* Reset stored estimates
-		estimates clear
-
-		* Run regressions for each proposition
-		local first_ols = 1
-		local first_sls = 1
-		foreach num in `props' {
-			preserve   // Prevent permanent changes
-			
-			* Run OLS regression
-			reg prop_yes_`num' log_cumulative_funding, vce(cluster county_id)
-			est store ols_prop_`num'
-
-			* Run 2SLS (IV) regression
-			ivreg2 prop_yes_`num' (log_cumulative_funding = avg_instrument), cluster(county_id)
-			est store sls_prop_`num'
-
-			* Output OLS estimates to a separate table
-			if `first_ols' == 1 {
-				outreg2 [ols_prop_`num'] using "`outputs'/`year'_ols.tex", replace label ///
-					title("OLS Estimates for `year'")
-				local first_ols = 0
-			}
-			else {
-				outreg2 [ols_prop_`num'] using "`outputs'/`year'_ols.tex", append label 
-			}
-
-			* Output 2SLS (IV) estimates to a separate table
-			if `first_sls' == 1 {
-				outreg2 [sls_prop_`num'] using "`outputs'/`year'_2sls.tex", replace label  ///
-					title("2SLS Estimates for `year'")
-				local first_sls = 0
-			}
-			else {
-				outreg2 [sls_prop_`num'] using "`outputs'/`year'_2sls.tex", append label 
-			}
-
-			restore   // Reload full dataset for next iteration
-		}
+/*============================================================================*/
 	
-	
-	/*	
-	// Combine all OLS and 2SLS results into induvidual plots 
-    coefplot ///
-    (ols_prop_3, label("Prop 3: Water Infra Bonds")) ///
-    (ols_prop_6, label("Prop 6: Repeal Fuel Tax")) ///
-    (ols_prop_68, label("Prop 68: Park and Water Bonds")) ///
-    (ols_prop_69, label("Prop 69: Transport Tax Use")) ///
-    (ols_prop_72, label("Prop 72: Rain-Capture Tax-Exemption")), ///
-    vert ///
-    title("Votes in Favour (OLS)") ///
-    xlabel(, angle(360) grid) ///
-    ylabel(, grid) ///
-    drop(_cons) ///
-    xline(0)
-
-	graph export "`outputs'/ols_coefplot.png", replace 
+						// TAX MECHANISMS TESTING 
 		
+/*============================================================================*/
+
+
+	use "`input_data'/rf_dataset_mechanisms_tax.dta", clear
+
+	encode County, gen(county_id)
+
+	egen max_instrument = max(instrument) if Year == 2018, by(county_id)
+	keep if Year != 2018 | instrument == max_instrument
+	drop max_instrument
+
+	xtset county_id Year
+
+	bysort County (Year): gen cumulative_funding = sum(TOT_funding)
+	gen log_cumulative_funding = log(cumulative_funding)
+	egen avg_instrument = mean(instrument), by(County Year)
+
+	* Tax aversion variables already merged in:
+	* - tax_averse_score (0 to 5)
+	* - high_tax_averse (0/1)
+
+*==============================================================================
+			* Run regressions and output each prop as a table
+*==============================================================================
+local props_2018 69 72
+
+foreach num of local props_2018 {
+
+    * OLS with tax aversion score (continuous 1–4)
+    reg prop_yes_`num' log_cumulative_funding i.tax_averse_score, vce(cluster county_id)
+    est store ols_prop_`num'
+
+    * 2SLS with tax aversion score
+    ivreg2 prop_yes_`num' (log_cumulative_funding = avg_instrument) i.tax_averse_score, partial(i.tax_averse_score) ///
+        cluster(county_id)
+    est store iv_prop_`num'
+
+    * Export all to one table
+    outreg2 [ols_prop_`num' iv_prop_`num'] using ///
+        "`outputs'/mechanism_controls_2018_prop`num'.tex", replace label ///
+        title("Placebo Regressions for Prop `num' (2018) with Tax Aversion Controls") 
+
+    display "Saved: Prop `num'"
+
+
+}
+	label variable log_cumulative_funding "Log(Cumulative Funding)"
 	coefplot ///
-    (sls_prop_3, label("Prop 3: Water Infra Bonds")) ///
-    (sls_prop_6, label("Prop 6: Repeal Fuel Tax")) ///
-    (sls_prop_68, label("Prop 68: Park and Water Bonds")) ///
-    (sls_prop_69, label("Prop 69: Transport Tax Use")) ///
-    (sls_prop_72, label("Prop 72: Rain-Capture Tax-Exemption")), ///
+    (ols_prop_69, label("OLS: Prop 69 ")) ///
+    (iv_prop_69, label("2SLS: Prop 69 ")) ///
+    (ols_prop_72, label("OLS: Prop 72 ")) ///
+    (iv_prop_72, label("2SLS: Prop 72")), ///
     vert ///
-    title("Votes in Favour (2SLS)") ///
+    title("Testing for Tax Aversion") ///
     xlabel(, angle(360) grid) ///
     ylabel(, grid) ///
     drop(_cons) ///
-    xline(0)
+    keep(log_cumulative_funding) ///
+    xline(0) ///
+	yline(0)
 
-	graph export "`outputs'/2sls_coefplot.png", replace 
-   
-    display "Coefplot for `year' generated successfully."
-	
-
-
-	}
-	
-
-	
-	/*
-	
-	// Combine all OLS and 2SLS results into induvidual plots 
-    coefplot ///
-    (ols_prop_3, label("Prop 3: Water Infra Bonds")) ///
-    (ols_prop_6, label("Prop 6: Repeal Fuel Tax")) ///
-    (ols_prop_68, label("Prop 68: Park and Water Bonds")) ///
-    (ols_prop_69, label("Prop 69: Transport Tax Use")) ///
-    (ols_prop_72, label("Prop 72: Rain-Capture Tax-Exemption")), ///
-    vert ///
-    title("Votes in Favour (OLS)") ///
-    xlabel(, angle(360) grid) ///
-    ylabel(, grid) ///
-    drop(_cons) ///
-    xline(0)
-
-	graph export "`outputs'/ols_coefplot.png", replace 
-		
-	coefplot ///
-    (sls_prop_3, label("Prop 3: Water Infra Bonds")) ///
-    (sls_prop_6, label("Prop 6: Repeal Fuel Tax")) ///
-    (sls_prop_68, label("Prop 68: Park and Water Bonds")) ///
-    (sls_prop_69, label("Prop 69: Transport Tax Use")) ///
-    (sls_prop_72, label("Prop 72: Rain-Capture Tax-Exemption")), ///
-    vert ///
-    title("Votes in Favour (2SLS)") ///
-    xlabel(, angle(360) grid) ///
-    ylabel(, grid) ///
-    drop(_cons) ///
-    xline(0)
-
-	graph export "`outputs'/2sls_coefplot.png", replace 
-   
-    display "Coefplot for `year' generated successfully."
-	
-	
+	graph export "`outputs'/mech_plot.png", replace
 	

@@ -130,26 +130,7 @@
 
 	clear 
 	
-	// merge 2017 data with 2018 voting outcomes 
-	use "`input_yearly'/2018_ces3.dta"
 	
-	local files 1 2 3 4 5 6 7 8 10 11 12 68 69 70 71 72
-	
-	foreach num of local files {
-    merge 1:1 County using "`input_ballot'/2018_prop_`num'.dta"
-	drop if _merge==2
-	
-    // Check for merge issues (optional)
-    tab _merge
-    
-    // Drop _merge to avoid conflicts in the next iteration
-    drop _merge
-	
-}
-	save "`output_data'/2018_ces3_ballots.dta", replace
-
-	clear 
-
 	
 	
 	
