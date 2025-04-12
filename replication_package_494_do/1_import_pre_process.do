@@ -25,24 +25,13 @@
 	set more off 
 	set seed 13011
 	pause on
-	
-	
-	local workingdir "/Users/eshavaze/Dropbox/replication_package_494"
-	
-	* raw input dir
-	local raw_input_data "`workingdir'/0_raw_input"
-	di "`raw_input_data'"
 
-	* intermediate processed data 
-	local output_data "`workingdir'/1_intermediate"
-	di "`intermediate_data'"
-	
 /*==============================================================================
 						IMPORT AND CLEAN CCI DATA
 ==============================================================================*/	
 
 	
-	import excel "`raw_input_data'/cci_2024ar_detaileddata.xlsx", sheet("Project List") firstrow
+	import excel "$raw_input_data/cci_2024ar_detaileddata.xlsx", sheet("Project List") firstrow
 	
 	// only keep relevant variables
 	keep ProjectIDNumber ReportingCycleName AgencyName ProgramName ProgramDescription SubProgramName ProjectDescription CensusTract SenateDistrict AssemblyDistrict County TotalProjectCost TotalProgramGGRFFunding ProjectLifeYears DateOperational ProjectCompletionDate FundingRecipient BufferAmount BufferCount CESVersion CESVersionCalc ApplicantsAssisted IntermediaryAdminExpensesCalc 
@@ -87,7 +76,7 @@
 	foreach v in 2 3 4 {
     preserve
     keep if CESVersion == `v'
-    save "`intermediate_data'/cci_ces_versions/cci_CESVersion`v'", replace
+    save "$intermediate_data/cci_ces_versions/cci_CESVersion`v'", replace
     restore
 }
 
@@ -96,7 +85,7 @@
 	foreach year in 2015 2016 2017 2018 2019 2020 2021 2022 2023 {
     preserve
     keep if Year == `year'
-    save "`intermediate_data'/cci_yearly/cci_`year'", replace
+    save "$intermediate_data/cci_yearly/cci_`year'", replace
     restore
 }
 
@@ -106,19 +95,19 @@
 							IMPORT AND CLEAN CES DATA 
 ==============================================================================*/	
 	// import ces2
-	import excel "`raw_input_data'/ces2results.xlsx", sheet("CES2.0FinalResults") firstrow clear
+	import excel "$raw_input_data/ces2results.xlsx", sheet("CES2.0FinalResults") firstrow clear
 	keep CensusTract TotalPopulation CaliforniaCounty CES20Score CES20PercentileRange
-	save "`intermediate_data'/ces2results.dta", replace
+	save "$intermediate_data/ces2results.dta", replace
 
 	// import ces3
-	import excel "`raw_input_data'/ces3results.xlsx", sheet("CES3.0FinalResults") firstrow clear
+	import excel "$raw_input_data/ces3results.xlsx", sheet("CES3.0FinalResults") firstrow clear
 	keep CensusTract TotalPopulation CaliforniaCounty CES30Score CES30Percentile CES30PercentileRange
-	save "`intermediate_data'/ces3results.dta", replace
+	save "$intermediate_data/ces3results.dta", replace
 
 	// import ces4
-	import excel "`raw_input_data'/ces4results.xlsx", sheet("CES4.0FinalResults") firstrow clear
+	import excel "$raw_input_data/ces4results.xlsx", sheet("CES4.0FinalResults") firstrow clear
 	keep CensusTract TotalPopulation CaliforniaCounty CES40Score CES40Percentile CES40PercentileRange
-	save "`intermediate_data'/ces4results.dta", replace
+	save "$intermediate_data/ces4results.dta", replace
 
 	
 	clear
@@ -130,7 +119,7 @@
 							     VERSION 2
 ==============================================================================*/		
 
-	use "`intermediate_data'/cci_ces_versions/cci_CESVersion2.dta"
+	use "$intermediate_data/cci_ces_versions/cci_CESVersion2.dta"
 	
 	// drop fields with no census tract data 
 	drop if CensusTract==""
@@ -139,7 +128,7 @@
 	
 	
 	// merge with scores 
-	merge m:1 CensusTract using "`intermediate_data'/ces_results/ces2results.dta"
+	merge m:1 CensusTract using "$intermediate_data/ces_results/ces2results.dta"
 	
 	/*
 	    Result                      Number of obs
@@ -265,14 +254,14 @@
 	sort Year County
 	drop if Year==.
 	
-	save "`intermediate_data'/instrument/ces2_instrument.dta", replace 
+	save "$intermediate_data/instrument/ces2_instrument.dta", replace 
 	
 	
 /*==============================================================================
 							     VERSION 3
 ==============================================================================*/	
 
-	use "`intermediate_data'/cci_ces_versions/cci_CESVersion3.dta"
+	use "$intermediate_data/cci_ces_versions/cci_CESVersion3.dta"
 	
 	
 	// drop fields with no census tract data 
@@ -282,7 +271,7 @@
 	
 	
 	// merge with scores 
-	merge m:1 CensusTract using "`intermediate_data'/ces_results/ces3results.dta"
+	merge m:1 CensusTract using "$intermediate_data/ces_results/ces3results.dta"
 	
 	/*
 	
@@ -416,7 +405,7 @@
 	sort Year County
 	drop if Year==.
 	
-	save "`intermediate_data'/instrument/ces3_instrument.dta", replace 
+	save "$intermediate_data/instrument/ces3_instrument.dta", replace 
 	
 /*==============================================================================
 					EXPORT AS YEARLY DATASETS WITH INSTRUMENT 
@@ -425,7 +414,7 @@
 	local versions "2 3"
 	
 	foreach v of local versions {
-    use "`intermediate_data'/instrument/ces`v'_instrument.dta", clear
+    use "$intermediate_data/instrument/ces`v'_instrument.dta", clear
 
     // Assuming there is a year variable, adjust if needed
     levelsof Year, local(Years)
@@ -435,7 +424,7 @@
     foreach y of local Years {
         preserve
         keep if Year == `y'
-        save "`intermediate_data'/instrument_yearly/ces`v'_`y'.dta", replace
+        save "$intermediate_data/instrument_yearly/ces`v'_`y'.dta", replace
         restore
     }
 }
