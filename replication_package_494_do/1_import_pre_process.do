@@ -25,6 +25,10 @@
 	set more off 
 	set seed 13011
 	pause on
+	
+
+//============================================================================*/
+	
 
 /*==============================================================================
 						IMPORT AND CLEAN CCI DATA
@@ -76,7 +80,7 @@
 	foreach v in 2 3 4 {
     preserve
     keep if CESVersion == `v'
-    save "$intermediate_data/cci_ces_versions/cci_CESVersion`v'", replace
+    save "$intermediate_data/cci_CESVersion`v'", replace
     restore
 }
 
@@ -85,7 +89,7 @@
 	foreach year in 2015 2016 2017 2018 2019 2020 2021 2022 2023 {
     preserve
     keep if Year == `year'
-    save "$intermediate_data/cci_yearly/cci_`year'", replace
+    save "$intermediate_data/cci_`year'", replace
     restore
 }
 
@@ -119,7 +123,7 @@
 							     VERSION 2
 ==============================================================================*/		
 
-	use "$intermediate_data/cci_ces_versions/cci_CESVersion2.dta"
+	use "$intermediate_data/cci_CESVersion2.dta"
 	
 	// drop fields with no census tract data 
 	drop if CensusTract==""
@@ -128,7 +132,7 @@
 	
 	
 	// merge with scores 
-	merge m:1 CensusTract using "$intermediate_data/ces_results/ces2results.dta"
+	merge m:1 CensusTract using "$intermediate_data/ces2results.dta"
 	
 	/*
 	    Result                      Number of obs
@@ -248,20 +252,20 @@
 	replace instrument = . if denom == 0  // Avoid division by zero
 	drop denom
 
-	collapse (mean) instrument, by(Year County)
+	collapse (mean) instrument, by(Year County) 
 	drop if instrument==. // tracts never in bandwidth
 
 	sort Year County
 	drop if Year==.
 	
-	save "$intermediate_data/instrument/ces2_instrument.dta", replace 
+	save "$intermediate_data/ces2_instrument.dta", replace 
 	
 	
 /*==============================================================================
 							     VERSION 3
 ==============================================================================*/	
 
-	use "$intermediate_data/cci_ces_versions/cci_CESVersion3.dta"
+	use "$intermediate_data/cci_CESVersion3.dta"
 	
 	
 	// drop fields with no census tract data 
@@ -271,7 +275,7 @@
 	
 	
 	// merge with scores 
-	merge m:1 CensusTract using "$intermediate_data/ces_results/ces3results.dta"
+	merge m:1 CensusTract using "$intermediate_data/ces3results.dta"
 	
 	/*
 	
@@ -405,7 +409,7 @@
 	sort Year County
 	drop if Year==.
 	
-	save "$intermediate_data/instrument/ces3_instrument.dta", replace 
+	save "$intermediate_data/ces3_instrument.dta", replace 
 	
 /*==============================================================================
 					EXPORT AS YEARLY DATASETS WITH INSTRUMENT 
@@ -414,7 +418,7 @@
 	local versions "2 3"
 	
 	foreach v of local versions {
-    use "$intermediate_data/instrument/ces`v'_instrument.dta", clear
+    use "$intermediate_data/ces`v'_instrument.dta", clear
 
     // Assuming there is a year variable, adjust if needed
     levelsof Year, local(Years)
@@ -424,9 +428,262 @@
     foreach y of local Years {
         preserve
         keep if Year == `y'
-        save "$intermediate_data/instrument_yearly/ces`v'_`y'.dta", replace
+        save "$intermediate_data/ces`v'_`y'.dta", replace
         restore
     }
 }
 
 
+	clear 
+	
+	
+/*==============================================================================
+					MERGE YEARLY CCI + YEARLY INSTRUMENT DATA 
+==============================================================================*/	
+
+/*==============================================================================
+									2015
+==============================================================================*/	
+
+	// load yearly data
+	use "$intermediate_data/cci_2015.dta"
+	/*
+	 CESVersion |      Freq.     Percent        Cum.
+	------------+-----------------------------------
+			  2 |     16,068      100.00      100.00
+	------------+-----------------------------------
+		  Total |     16,068      100.00
+	*/
+	
+	merge m:1 County using "$intermediate_data/ces2_2015.dta" 
+	drop if _merge==1 // counties with no census tracts in the bandwidht 
+	
+	
+	// creating the funding variable 
+	
+	// keep unfunded tracts in dataset, these are true zeroes 
+	count if TotalProgramGGRFFunding==.
+	// 1,294
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
+	
+	// version 2 only in this dataset
+	egen TOT_funding= sum(TotalProgramGGRFFunding), by(County)
+
+	drop _merge
+	
+	save "$intermediate_data/2015.dta", replace 
+	
+/*==============================================================================
+									2016
+==============================================================================*/
+		
+	// load yearly data
+	use "$intermediate_data/cci_2016.dta"
+	
+	/*
+	 CESVersion |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          2 |     11,525       99.60       99.60
+          3 |         46        0.40      100.00
+------------+-----------------------------------
+      Total |     11,571      100.00
+*/
+
+	foreach v in 2 3 {
+		preserve
+			keep if CESVersion == `v'
+			merge m:1 County using "$intermediate_data/ces`v'_2016.dta"
+			drop if _merge==1
+			drop _merge 
+			save "$intermediate_data/cci_temp_`v'_2016.dta", replace
+		restore
+	}
+	
+	use "$intermediate_data/cci_temp_2_2016.dta", clear
+	append using "$intermediate_data/cci_temp_3_2016.dta"
+	save "$intermediate_data/2016.dta", replace 
+	
+	count if TotalProgramGGRFFunding==.
+	// 1,294
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
+	
+	// version 2and3 only in this dataset
+	egen TOT_funding= sum(TotalProgramGGRFFunding), by(County)
+	
+	save "$intermediate_data/2016.dta", replace 
+	
+/*==============================================================================
+                                    2017
+==============================================================================*/
+
+	// load yearly data
+	use "$intermediate_data/cci_2017.dta"
+
+	foreach v in 2 3 {
+		preserve
+			keep if CESVersion == `v'
+			merge m:1 County using "$intermediate_data/ces`v'_2017.dta"
+			drop if _merge==1
+			drop _merge 
+			save "$intermediate_data/cci_temp_`v'_2017.dta", replace
+		restore
+	}
+
+	use "$intermediate_data/cci_temp_2_2017.dta", clear
+	append using "$intermediate_data/cci_temp_3_2017.dta"
+	save "$intermediate_data/2017.dta", replace 
+
+	count if TotalProgramGGRFFunding==.
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
+	egen TOT_funding= sum(TotalProgramGGRFFunding), by(County)
+	save "$intermediate_data/2017.dta", replace 
+
+/*==============================================================================
+                                    2018
+==============================================================================*/
+
+	use "$intermediate_data/cci_2018.dta"
+
+	foreach v in 2 3 {
+		preserve
+			keep if CESVersion == `v'
+			merge m:1 County using "$intermediate_data/ces`v'_2018.dta"
+			drop if _merge==1
+			drop _merge 
+			save "$intermediate_data/cci_temp_`v'_2018.dta", replace
+		restore
+	}
+
+	use "$intermediate_data/cci_temp_2_2018.dta", clear
+	append using "$intermediate_data/cci_temp_3_2018.dta"
+	save "$intermediate_data/2018.dta", replace 
+
+	count if TotalProgramGGRFFunding==.
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
+	egen TOT_funding= sum(TotalProgramGGRFFunding), by(County)
+	save "$intermediate_data/2018.dta", replace 
+
+/*==============================================================================
+                                    2019
+==============================================================================*/
+
+	use "$intermediate_data/cci_2019.dta"
+
+	foreach v in 2 3 {
+		preserve
+			keep if CESVersion == `v'
+			merge m:1 County using "$intermediate_data/ces`v'_2019.dta"
+			drop if _merge==1
+			drop _merge 
+			save "$intermediate_data/cci_temp_`v'_2019.dta", replace
+		restore
+	}
+
+	use "$intermediate_data/cci_temp_2_2019.dta", clear
+	append using "$intermediate_data/cci_temp_3_2019.dta"
+	save "$intermediate_data/2019.dta", replace 
+
+	count if TotalProgramGGRFFunding==.
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
+	egen TOT_funding= sum(TotalProgramGGRFFunding), by(County)
+	save "$intermediate_data/2019.dta", replace 
+
+/*==============================================================================
+                                    2020
+==============================================================================*/
+
+	use "$intermediate_data/cci_2020.dta"
+
+	foreach v in 2 3 {
+		preserve
+			keep if CESVersion == `v'
+			merge m:1 County using "$intermediate_data/ces`v'_2020.dta"
+			drop if _merge==1
+			drop _merge 
+			save "$intermediate_data/cci_temp_`v'_2020.dta", replace
+		restore
+	}
+
+	use "$intermediate_data/cci_temp_2_2020.dta", clear
+	append using "$intermediate_data/cci_temp_3_2020.dta"
+	save "$intermediate_data/2020.dta", replace 
+
+	count if TotalProgramGGRFFunding==.
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
+	egen TOT_funding= sum(TotalProgramGGRFFunding), by(County)
+	save "$intermediate_data/2020.dta", replace 
+
+/*==============================================================================
+                                    2021
+==============================================================================*/
+
+	use "$intermediate_data/cci_2021.dta"
+
+	foreach v in 2 3 {
+		preserve
+			keep if CESVersion == `v'
+			merge m:1 County using "$intermediate_data/ces`v'_2021.dta"
+			drop if _merge==1
+			drop _merge 
+			save "$intermediate_data/cci_temp_`v'_2021.dta", replace
+		restore
+	}
+
+	use "$intermediate_data/cci_temp_2_2021.dta", clear
+	append using "$intermediate_data/cci_temp_3_2021.dta"
+	save "$intermediate_data/2021.dta", replace 
+
+	count if TotalProgramGGRFFunding==.
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
+	egen TOT_funding= sum(TotalProgramGGRFFunding), by(County)
+	save "$intermediate_data/2021.dta", replace 
+
+/*==============================================================================
+                                    2022
+==============================================================================*/
+
+	use "$intermediate_data/cci_2022.dta"
+
+	foreach v in 2 3 {
+		preserve
+			keep if CESVersion == `v'
+			merge m:1 County using "$intermediate_data/ces`v'_2022.dta"
+			drop if _merge==1
+			drop _merge 
+			save "$intermediate_data/cci_temp_`v'_2022.dta", replace
+		restore
+	}
+
+	use "$intermediate_data/cci_temp_2_2022.dta", clear
+	append using "$intermediate_data/cci_temp_3_2022.dta"
+	save "$intermediate_data/2022.dta", replace 
+
+	count if TotalProgramGGRFFunding==.
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
+	egen TOT_funding= sum(TotalProgramGGRFFunding), by(County)
+	save "$intermediate_data/2022.dta", replace 
+
+/*==============================================================================
+                                    2023
+==============================================================================*/
+
+	use "$intermediate_data/cci_2023.dta"
+
+	foreach v in 2 3 {
+		preserve
+			keep if CESVersion == `v'
+			merge m:1 County using "$intermediate_data/ces`v'_2023.dta"
+			drop if _merge==1
+			drop _merge 
+			save "$intermediate_data/cci_temp_`v'_2023.dta", replace
+		restore
+	}
+
+	use "$intermediate_data/cci_temp_2_2023.dta", clear
+	append using "$intermediate_data/cci_temp_3_2023.dta"
+	save "$intermediate_data/2023.dta", replace 
+
+	count if TotalProgramGGRFFunding==.
+	replace TotalProgramGGRFFunding=0 if TotalProgramGGRFFunding==.
+	egen TOT_funding= sum(TotalProgramGGRFFunding), by(County)
+	save "$intermediate_data/2023.dta", replace 

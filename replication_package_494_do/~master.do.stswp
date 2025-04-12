@@ -27,8 +27,8 @@
 
 ********************************************************************************
 
-	//include "$dodir/1_import_pre_process.do"
-	//ballot data 
+	include "$dodir/1_import_pre_process.do"
+	//ba
 	include "$dodir/2_0_2012_ballot.do"
 	include "$dodir/2_0_2014_ballot.do"
 	include "$dodir/2_1_2016_ballot.do"
