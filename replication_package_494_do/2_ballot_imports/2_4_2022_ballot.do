@@ -75,7 +75,7 @@
 	foreach prop in 1 26 27 28 29 30 31 {
     preserve
         keep County Yes_Prop`prop' No_Prop`prop'
-        save "$1_intermediate/yearly_ballots/2022_prop_`prop'.dta", replace
+        save "$intermediate_data/yearly_ballots/2022_prop_`prop'.dta", replace
     restore
 }
 
@@ -85,7 +85,7 @@
 	
 	foreach prop in 1 26 27 28 29 30 31 {
 		// Load the dataset for each proposition
-		use "$1_intermediate/yearly_ballots/2022_prop_`prop'.dta", clear
+		use "$intermediate_data/yearly_ballots/2022_prop_`prop'.dta", clear
 
 		// Drop first three rows 
 		drop in 1/3
@@ -104,5 +104,5 @@
 		replace pass_binary_`prop' = 0 if pass_binary_`prop' == .
 
 		// Save the processed dataset
-		save "$1_intermediate/yearly_ballots/2022_prop_`prop'.dta", replace
+		save "$intermediate_data/yearly_ballots/2022_prop_`prop'.dta", replace
 	}

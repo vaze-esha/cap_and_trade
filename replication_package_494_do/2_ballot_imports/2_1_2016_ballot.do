@@ -67,7 +67,7 @@
 
 	notes: PROP50 SUSPENSION OF LEGISLATORS (passed) file made on TS
      
-	save "$1_intermediate/yearly_ballots/2016_prop_50.dta", replace 
+	save "$intermediate_data/yearly_ballots/2016_prop_50.dta", replace 
 	
 	/*
 	
@@ -127,7 +127,7 @@
 	foreach prop in 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 {
     preserve
         keep County Yes_Prop`prop' No_Prop`prop'
-        save "$1_intermediate/yearly_ballots/2016_prop_`prop'.dta", replace
+        save "$intermediate_data/yearly_ballots/2016_prop_`prop'.dta", replace
     restore
 }
 
@@ -137,7 +137,7 @@
 	
 	foreach prop of numlist 51/67 {
 		// Load the dataset for each proposition
-		use "$1_intermediate/yearly_ballots/2016_prop_`prop'.dta", clear
+		use "$intermediate_data/yearly_ballots/2016_prop_`prop'.dta", clear
 
 		// Drop first three rows 
 		drop in 1/3
@@ -157,7 +157,7 @@
 
 
 		// Save the processed dataset
-		save "$1_intermediate/yearly_ballots/2016_prop_`prop'.dta", replace
+		save "$intermediate_data/yearly_ballots/2016_prop_`prop'.dta", replace
 	}
 
 	/*

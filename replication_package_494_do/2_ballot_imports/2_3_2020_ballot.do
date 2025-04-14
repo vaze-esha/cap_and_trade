@@ -79,7 +79,7 @@
 	foreach prop of numlist 14/25 {
     preserve
         keep County Yes_Prop`prop' No_Prop`prop'
-        save "$1_intermediate/yearly_ballots/2020_prop_`prop'.dta", replace
+        save "$intermediate_data/yearly_ballots/2020_prop_`prop'.dta", replace
     restore
 }
 
@@ -89,7 +89,7 @@
 	
 	foreach prop of numlist 14/25 {
 		// Load the dataset for each proposition
-		use "$1_intermediate/yearly_ballots/2020_prop_`prop'.dta", clear
+		use "$intermediate_data/yearly_ballots/2020_prop_`prop'.dta", clear
 
 		// Drop first three rows 
 		drop in 1/3
@@ -110,5 +110,5 @@
 
 
 		// Save the processed dataset
-		save "$1_intermediate/yearly_ballots/2020_prop_`prop'.dta", replace
+		save "$intermediate_data/yearly_ballots/2020_prop_`prop'.dta", replace
 	}

@@ -76,7 +76,7 @@
 	foreach prop in 68 69 70 71 72 {
     preserve
         keep County Yes_Prop`prop' No_Prop`prop'
-        save "$1_intermediate/yearly_ballots/2018_prop_`prop'.dta", replace
+        save "$intermediate_data/yearly_ballots/2018_prop_`prop'.dta", replace
     restore
 }
 
@@ -86,7 +86,7 @@
 	
 	foreach prop of numlist 68/72 {
 		// Load the dataset for each proposition
-		use "$1_intermediate/yearly_ballots/2018_prop_`prop'.dta", clear
+		use "$intermediate_data/yearly_ballots/2018_prop_`prop'.dta", clear
 
 		// Drop first three rows 
 		drop in 1/3
@@ -106,7 +106,7 @@
 		replace pass_binary_`prop' = 0 if pass_binary_`prop' == .
 
 		// Save the processed dataset
-		save "$1_intermediate/yearly_ballots/2018_prop_`prop'.dta", replace
+		save "$intermediate_data/yearly_ballots/2018_prop_`prop'.dta", replace
 	}
 	
 	clear
@@ -172,7 +172,7 @@
 	foreach prop of numlist 1 2 3 4 5 6 7 8 10 11 12 {
     preserve
         keep County Yes_Prop`prop' No_Prop`prop'
-        save "$1_intermediate/yearly_ballots/2018_prop_`prop'.dta", replace
+        save "$intermediate_data/yearly_ballots/2018_prop_`prop'.dta", replace
     restore
 }
 
@@ -183,7 +183,7 @@
 	foreach prop of numlist 1 2 3 4 5 6 7 8 10 11 12 {
 		// skip prop 9
 		// Load the dataset for each proposition
-		use "$1_intermediate/yearly_ballots/2018_prop_`prop'.dta", clear
+		use "$intermediate_data/yearly_ballots/2018_prop_`prop'.dta", clear
 
 		// Drop first three rows 
 		drop in 1/3
@@ -202,7 +202,7 @@
 		replace pass_binary_`prop' = 0 if pass_binary_`prop' == .
 
 		// Save the processed dataset
-		save "$1_intermediate/yearly_ballots/2018_prop_`prop'.dta", replace
+		save "$intermediate_data/yearly_ballots/2018_prop_`prop'.dta", replace
 	}
 	
 	clear

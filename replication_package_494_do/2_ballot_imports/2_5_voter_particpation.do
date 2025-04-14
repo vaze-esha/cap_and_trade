@@ -15,17 +15,6 @@
 		
 ==============================================================================*/
 
-// working directory dropbox 
-	local workingdir "/Users/eshavaze/Dropbox/cal_cap_and_trade"
-	
-	// input 
-	local input_data "`workingdir'/0_raw_input/ballots"
-	
-	// output
-	local output_data "`workingdir'/2_processing"
-	
-	// code 
-	local do_dir "/Users/eshavaze/cap_and_trade/process_data/4_ballot_imports"
 	
 /*==============================================================================
 									2018 
@@ -74,7 +63,7 @@
     replace `var' = `var' / 100  // Divide by 100 to convert to decimal
 }
 
-	save "$1_intermediate/2018_voter_participation.dta", replace 
+	save "$intermediate_data/2018_voter_participation.dta", replace 
 	
 /*==============================================================================
 									2016 
@@ -112,5 +101,5 @@
 
 	drop in 59/60
 	
-	save "$1_intermediate/2016_voter_participation.dta", replace 
+	save "$intermediate_data/2016_voter_participation.dta", replace 
 	
